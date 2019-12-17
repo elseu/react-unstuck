@@ -97,7 +97,6 @@ export function updateStickyLayout(
 
   const elementParams = (element: HTMLElement) =>
     memoize(() => ({
-      aap: elementRootOffset(element),
       element,
       viewportTop:
         elementRootOffset(element) -

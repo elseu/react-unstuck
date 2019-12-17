@@ -39,7 +39,12 @@ function selectBehavior(label: string, defaultValue: string = 'stickToTop') {
   return behaviors[option];
 }
 
-const HeightChangingHeader: React.FC<{ style?: CSSProperties, behavior: IStickyBehavior }> = ({ children, behavior, style = {} }) => {
+interface IHeightChangingHeaderProps {
+  style?: CSSProperties;
+  behavior: IStickyBehavior;
+}
+
+const HeightChangingHeader: React.FC<IHeightChangingHeaderProps> = ({ children, behavior, style = {} }) => {
   const [higher, setHigher] = useState(false);
   const onClick = useCallback(() => {
     setHigher((x) => !x);
