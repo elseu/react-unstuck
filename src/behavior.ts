@@ -42,6 +42,7 @@ interface IScrollDirectionState {
   prevScrollTop?: number;
   anchorScrollTop?: number;
   prevScrollDirection?: 'up' | 'down';
+  prevHeight?: number;
 }
 
 export const stickToTopAndScrollDown: IStickyBehavior<IScrollDirectionState> = ({
@@ -56,6 +57,15 @@ export const stickToTopAndScrollDown: IStickyBehavior<IScrollDirectionState> = (
 
     const { prevScrollTop = 0, prevScrollDirection } = state;
     let { anchorScrollTop } = state;
+    const { prevHeight } = state;
+
+    if (anchorScrollTop !== undefined && prevHeight !== undefined && prevHeight !== height) {
+      // The element's height has changed. Recompute the anchor scroll top.
+      anchorScrollTop += height - prevHeight;
+      state.anchorScrollTop = anchorScrollTop;
+    }
+    state.prevHeight = height;
+
     const { scrollTop } = viewport();
     const scrollDirection = scrollTop > prevScrollTop ? 'down' : 'up';
     state.prevScrollTop = scrollTop;
