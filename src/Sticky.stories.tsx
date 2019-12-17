@@ -51,7 +51,7 @@ const HeightChangingHeader: React.FC<IHeightChangingHeaderProps> = ({ children, 
   }, [setHigher]);
   return (
     <Sticky behavior={behavior}>
-      <h1 onClick={onClick} style={{ ...style, padding: higher ? '30px 0' : '0' }}>{children}</h1>
+      <h1 onClick={onClick} style={{ ...style, padding: higher ? '40px 0' : '10px 0' }}>{children}</h1>
     </Sticky>
   );
 };
