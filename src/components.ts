@@ -1,27 +1,27 @@
 import {
-  FC,
+  Children,
+  cloneElement,
   createElement,
+  CSSProperties,
+  FC,
   Fragment,
+  memo,
+  ReactElement,
   Ref,
   useCallback,
   useEffect,
-  useState,
   useMemo,
-  memo,
-  Children,
-  cloneElement,
-  ReactElement,
   useRef,
-  CSSProperties
-} from "react";
-import { GatherContainer, useGather, useGatheredElements } from "./gather";
-import { useScrollEvent, useScrollElement, ScrollContainer } from "./scroll";
+  useState,
+} from 'react';
 import {
+  ICssStyleData,
   IStickyBehavior,
-  updateStickyLayout,
   IStickyHandle,
-  ICssStyleData
-} from "./calc";
+  updateStickyLayout,
+} from './calc';
+import { GatherContainer, useGather, useGatheredElements } from './gather';
+import { ScrollContainer, useScrollElement, useScrollEvent } from './scroll';
 
 export type IStickyScrollContainerProps = {
   element: ReactElement<{ ref: (element: HTMLElement | null) => void }>;
@@ -29,7 +29,7 @@ export type IStickyScrollContainerProps = {
   className?: string;
   style?: CSSProperties;
   type?: string;
-}
+};
 
 // A container that supports scrolling with sticky elements.
 export const StickyScrollContainer: FC<IStickyScrollContainerProps> = ({ children, ...props }) => {
@@ -39,8 +39,8 @@ export const StickyScrollContainer: FC<IStickyScrollContainerProps> = ({ childre
     createElement(
       StickyContainer,
       {},
-      children
-    )
+      children,
+    ),
   );
 };
 
@@ -49,7 +49,7 @@ export const StickyContainer: FC<{}> = ({ children }) => {
   return createElement(
     GatherContainer,
     {},
-    createElement(StickyLayoutContainer, {}, children)
+    createElement(StickyLayoutContainer, {}, children),
   );
 };
 
@@ -58,15 +58,13 @@ export interface IStickyProps {
 }
 
 function isReactElementWithRef(
-  elem: any
+  elem: any,
 ): elem is ReactElement<{ ref: Ref<any> }> {
-  return "type" in elem;
+  return 'type' in elem;
 }
 
-let aap = 0;
-
 export const Sticky: FC<IStickyProps> = memo(({ behavior, children }) => {
-  const cssProps = useRef<ICssStyleData>({ display: "none" });
+  const cssProps = useRef<ICssStyleData>({ display: 'none' });
   const stickyCopyRef = useRef<HTMLElement>();
   const behaviorState = useRef<any>({});
 
@@ -75,7 +73,7 @@ export const Sticky: FC<IStickyProps> = memo(({ behavior, children }) => {
       behavior,
       behaviorState: behaviorState.current,
       update: (sticky, stickyCssProps) => {
-        stickyCssProps["display"] = sticky ? "block" : "none";
+        (stickyCssProps as any).display = sticky ? 'block' : 'none';
         cssProps.current = stickyCssProps;
         if (stickyCopyRef.current) {
           // Immediately set the style.
@@ -83,20 +81,20 @@ export const Sticky: FC<IStickyProps> = memo(({ behavior, children }) => {
             stickyCopyRef.current.style[k as any] = stickyCssProps[k];
           }
         }
-      }
+      },
     }),
-    [behavior, cssProps, stickyCopyRef]
+    [behavior, cssProps, stickyCopyRef],
   );
 
   const ref = useGather(handle);
   const fixedElement = createElement(
-    "div",
+    'div',
     { style: cssProps.current, ref: stickyCopyRef },
-    children
+    children,
   );
 
   let haveMappedRef = false;
-  const childrenWithRef = Children.map(children, child => {
+  const childrenWithRef = Children.map(children, (child) => {
     if (!haveMappedRef && isReactElementWithRef(child)) {
       haveMappedRef = true;
       return cloneElement(child, { ref });
@@ -108,7 +106,7 @@ export const Sticky: FC<IStickyProps> = memo(({ behavior, children }) => {
 });
 
 function isStickyHandle(elem: any): elem is IStickyHandle {
-  return "behavior" in elem && typeof elem.update === "function";
+  return 'behavior' in elem && typeof elem.update === 'function';
 }
 
 // A container that lays out sticky components and makes sure they are updated properly.
@@ -117,10 +115,10 @@ const StickyLayoutContainer: FC<{}> = ({ children }) => {
   const scrollElement = useScrollElement();
 
   const updateLayout = useCallback(
-    (scrollElement: HTMLElement | Window) => {
-      updateStickyLayout(stickyHandleElements, scrollElement);
+    (eventScrollElement: HTMLElement | Window) => {
+      updateStickyLayout(stickyHandleElements, eventScrollElement);
     },
-    [stickyHandleElements]
+    [stickyHandleElements],
   );
 
   useEffect(() => {
@@ -131,10 +129,10 @@ const StickyLayoutContainer: FC<{}> = ({ children }) => {
   }, [scrollElement, updateLayout]);
 
   useScrollEvent(
-    info => {
+    (info) => {
       updateLayout(info.scrollElement);
     },
-    [updateLayout, updateLayout]
+    [updateLayout, updateLayout],
   );
 
   return createElement(Fragment, {}, children);

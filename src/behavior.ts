@@ -1,11 +1,11 @@
-import { IStickyBehavior } from "./calc";
+import { IStickyBehavior } from './calc';
 
 export const stickToTop: IStickyBehavior = ({ element, prev }) => {
   const minTop = prev()?.bottom ?? 0;
   if (element().viewportTop < minTop) {
     return {
       scrolling: false,
-      top: minTop
+      top: minTop,
     };
   }
   return null;
@@ -25,13 +25,13 @@ export const shiftToTop: IStickyBehavior = ({ element, nextElement }) => {
   if (nextElementTop !== undefined && nextElementTop < minTop + elementHeight) {
     return {
       scrolling: true,
-      top: nextElementTop - element().height
+      top: nextElementTop - element().height,
     };
   }
 
   return {
     scrolling: false,
-    top: minTop
+    top: minTop,
   };
 };
 
@@ -45,7 +45,7 @@ export const stickToTopAndScrollDown: IStickyBehavior<IScrollDirectionState> = (
   element,
   viewport,
   state,
-  prevSticky
+  prevSticky,
 }) => {
     // If we are below the viewport top, do nothing.
     const prevStickyBottom = prevSticky()?.bottom ?? 0;
@@ -69,7 +69,10 @@ export const stickToTopAndScrollDown: IStickyBehavior<IScrollDirectionState> = (
         // We have moved the sticky element out of screen.
         anchorScrollTop = undefined;
         delete state.anchorScrollTop;
-    } else if (anchorScrollTop !== undefined && scrollDirection === 'down' && prevScrollDirection === 'up' && scrollTop < anchorScrollTop - height) {
+    } else if (anchorScrollTop !== undefined
+      && scrollDirection === 'down'
+      && prevScrollDirection === 'up'
+      && scrollTop < anchorScrollTop - height) {
         // We have started to scroll down while anchored at the top.
         // Move us down 1 pixel to shake us loose.
         anchorScrollTop = state.anchorScrollTop = scrollTop + height;
@@ -85,7 +88,7 @@ export const stickToTopAndScrollDown: IStickyBehavior<IScrollDirectionState> = (
         // Stick to top.
         return {
             scrolling: false,
-            top: prevStickyBottom
+            top: prevStickyBottom,
         };
     }
 
@@ -97,6 +100,6 @@ export const stickToTopAndScrollDown: IStickyBehavior<IScrollDirectionState> = (
     // Scroll into or out of view.
     return {
         scrolling: true,
-        top: prevStickyBottom + anchorScrollTop - scrollTop - height
-    }
+        top: prevStickyBottom + anchorScrollTop - scrollTop - height,
+    };
 };

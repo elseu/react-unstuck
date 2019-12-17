@@ -1,23 +1,23 @@
 import {
-  FC,
+  cloneElement,
   createContext,
   createElement,
-  useEffect,
-  cloneElement,
+  CSSProperties,
+  FC,
   ReactElement,
   useCallback,
-  useState,
   useContext,
+  useEffect,
   useMemo,
-  CSSProperties
-} from "react";
+  useState,
+} from 'react';
 
 interface IScrollContext {
   scrollElement: HTMLElement | Window;
 }
 
 const defaultScrollContext: IScrollContext = {
-  scrollElement: window
+  scrollElement: window,
 };
 
 const ScrollContext = createContext(defaultScrollContext);
@@ -28,34 +28,36 @@ export type IScrollContainerProps = {
   className?: string;
   style?: CSSProperties;
   type?: string;
-}
+};
 
 const defaultScrollStyle = { position: 'relative', overflowY: 'scroll' };
 
-export const ScrollContainer: FC<IScrollContainerProps> = props => {
+export const ScrollContainer: FC<IScrollContainerProps> = (props) => {
   const [scrollElement, setScrollElement] = useState<HTMLElement | null>(null);
   const ref = useCallback(
     (element: HTMLElement | null) => {
       setScrollElement(element);
     },
-    [setScrollElement]
+    [setScrollElement],
   );
 
   const { children } = props;
   let elementWithRef: ReactElement<{ ref: (element: HTMLElement | null) => void }> | undefined;
   if ('element' in props) {
-    elementWithRef = cloneElement(props.element, { ref }, children)
+    elementWithRef = cloneElement(props.element, { ref }, children);
   } else {
     const { className, style, type = 'div' } = props;
     elementWithRef = createElement(type, { className, style: { ...defaultScrollStyle, ...style }, ref }, children);
   }
 
-  const context: IScrollContext = useMemo(() => ({ scrollElement: scrollElement || defaultScrollContext.scrollElement }), [scrollElement]);
+  const context: IScrollContext = useMemo(() => ({
+    scrollElement: scrollElement || defaultScrollContext.scrollElement,
+  }), [scrollElement]);
 
   return createElement(
     ScrollContext.Provider,
     { value: context },
-    elementWithRef
+    elementWithRef,
   );
 };
 
@@ -70,7 +72,7 @@ export function useScrollElement(): HTMLElement | Window {
 
 export function useScrollEvent(
   f: (info: IScrollEventInfo) => void,
-  deps: any[]
+  deps: any[],
 ): void {
   const { scrollElement } = useContext(ScrollContext);
   const callbackF = useCallback(f, deps);
@@ -81,18 +83,18 @@ export function useScrollEvent(
       }
       callbackF({
         scrollElement,
-        event
+        event,
       });
     },
-    [scrollElement, callbackF]
+    [scrollElement, callbackF],
   );
   useEffect(() => {
     if (scrollElement === null) {
       return;
     }
-    scrollElement.addEventListener("scroll", onScroll);
+    scrollElement.addEventListener('scroll', onScroll);
     return () => {
-      scrollElement.removeEventListener("scroll", onScroll);
+      scrollElement.removeEventListener('scroll', onScroll);
     };
   }, [scrollElement, onScroll]);
 }

@@ -1,4 +1,4 @@
-import { IGatheredElement } from "./gather";
+import { IGatheredElement } from './gather';
 
 export interface ICssStyleData {
   [k: string]: any;
@@ -28,9 +28,7 @@ export interface IStickyParameters<S = any> {
   nextElement(): IElementParameters | null;
 }
 
-export interface IStickyBehavior<S = any> {
-  (params: IStickyParameters<S>): IStickyLayout;
-}
+export type IStickyBehavior<S = any> = (params: IStickyParameters<S>) => IStickyLayout;
 
 export type IStickyLayout = null | IViewportStickyLayout;
 
@@ -80,20 +78,20 @@ function elementRootOffset(element: HTMLElement): number {
 
 export function updateStickyLayout(
   stickyHandleElements: Array<IGatheredElement<IStickyHandle>>,
-  scrollElement: HTMLElement | Window
+  scrollElement: HTMLElement | Window,
 ): void {
   const viewport = memoize(() => ({
     element: scrollElement,
     scrollTop:
-      "scrollY" in scrollElement
+      'scrollY' in scrollElement
         ? scrollElement.scrollY
         : scrollElement.scrollTop,
     height:
-      "offsetHeight" in scrollElement
+      'offsetHeight' in scrollElement
         ? scrollElement.offsetHeight
         : scrollElement.innerHeight,
     topOffset:
-      "nodeType" in scrollElement ? elementRootOffset(scrollElement) : 0
+      'nodeType' in scrollElement ? elementRootOffset(scrollElement) : 0,
   }));
 
   const elementParams = (element: HTMLElement) =>
@@ -104,7 +102,7 @@ export function updateStickyLayout(
         elementRootOffset(element) -
         viewport().topOffset -
         viewport().scrollTop,
-      height: element.offsetHeight
+      height: element.offsetHeight,
     }));
 
   const layouts: Array<
@@ -120,10 +118,10 @@ export function updateStickyLayout(
       return layout;
     }
     return prevStickyForIndex(i - 1);
-  }
+  };
 
   const layoutForIndex = (i: number): IProcessedStickyLayout => {
-    if (typeof layouts[i] !== "undefined") {
+    if (typeof layouts[i] !== 'undefined') {
       return layouts[i] as IProcessedStickyLayout;
     }
     if (layouts.length <= i) {
@@ -146,7 +144,7 @@ export function updateStickyLayout(
       nextElement:
         i >= layouts.length - 1
           ? () => null
-          : elementParams(stickyHandleElements[i + 1].element)
+          : elementParams(stickyHandleElements[i + 1].element),
     });
 
     const processedLayout = processStickyLayout(layout, element, i);
@@ -164,7 +162,7 @@ export function updateStickyLayout(
 function processStickyLayout(
   layout: IStickyLayout,
   element: HTMLElement,
-  index: number
+  index: number,
 ): IProcessedStickyLayout {
   if (layout === null) {
     return null;
@@ -177,7 +175,7 @@ function processStickyLayout(
 
 function cssifyStickyLayout(
   layout: IProcessedStickyLayout,
-  viewport: () => IViewportParameters
+  viewport: () => IViewportParameters,
 ): { sticky: boolean; cssProps: ICssStyleData } {
   if (layout === null) {
     return { sticky: false, cssProps: {} };
@@ -191,16 +189,16 @@ function cssifyStickyLayout(
   let cssProps = {};
   if (layout.scrolling) {
     cssProps = {
-      position: "absolute",
-      top: top + scrollTop + "px",
-      width: "100%",
+      position: 'absolute',
+      top: top + scrollTop + 'px',
+      width: '100%',
       zIndex,
     };
   } else {
     cssProps = {
-      position: "fixed",
-      top: top + topOffset + "px",
-      width: "100%",
+      position: 'fixed',
+      top: top + topOffset + 'px',
+      width: '100%',
       zIndex,
     };
   }
