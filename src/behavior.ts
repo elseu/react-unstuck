@@ -1,7 +1,7 @@
 import { IStickyBehavior } from './calc';
 
-export const stickToTop: IStickyBehavior = ({ element, prev }) => {
-  const minTop = prev()?.bottom ?? 0;
+export const stickToTop: IStickyBehavior = ({ element, prevStickies }) => {
+  const minTop = Math.max(0, ...prevStickies().map((sticky) => sticky.bottom));
   if (element().viewportTop < minTop) {
     return {
       scrolling: false,
@@ -11,8 +11,8 @@ export const stickToTop: IStickyBehavior = ({ element, prev }) => {
   return null;
 };
 
-export const shiftToTop: IStickyBehavior = ({ element, nextElement }) => {
-  const minTop = 0;
+export const shiftToTop: IStickyBehavior = ({ element, nextElement, prevStickies }) => {
+  const minTop = Math.max(0, ...prevStickies().map((sticky) => sticky.bottom));
   const elementViewportTop = element().viewportTop;
   if (elementViewportTop >= minTop) {
     // Element is down the page, no sticky behavior.
@@ -23,6 +23,9 @@ export const shiftToTop: IStickyBehavior = ({ element, nextElement }) => {
 
   const nextElementTop = nextElement()?.viewportTop;
   if (nextElementTop !== undefined && nextElementTop < minTop + elementHeight) {
+    if (nextElementTop <= 0) {
+      return null;
+    }
     return {
       scrolling: true,
       top: nextElementTop - element().height,
@@ -45,10 +48,10 @@ export const stickToTopAndScrollDown: IStickyBehavior<IScrollDirectionState> = (
   element,
   viewport,
   state,
-  prevSticky,
+  prevStickies,
 }) => {
     // If we are below the viewport top, do nothing.
-    const prevStickyBottom = prevSticky()?.bottom ?? 0;
+    const prevStickyBottom = Math.max(0, ...prevStickies().map((sticky) => sticky.bottom));
     const { viewportTop, height } = element();
 
     const { prevScrollTop = 0, prevScrollDirection } = state;

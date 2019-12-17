@@ -24,6 +24,7 @@ export interface IStickyParameters<S = any> {
   element(): IElementParameters;
   prev(): IProcessedStickyLayout;
   prevSticky(): IProcessedStickyLayout;
+  prevStickies(): IViewportProcessedStickyLayout[];
   prevElement(): IElementParameters | null;
   nextElement(): IElementParameters | null;
 }
@@ -110,14 +111,13 @@ export function updateStickyLayout(
   > = stickyHandleElements.map(() => undefined);
 
   const prevStickyForIndex = (i: number): IProcessedStickyLayout => {
-    if (i <= 0) {
-      return null;
-    }
-    const layout = layoutForIndex(i - 1);
-    if (layout !== null) {
-      return layout;
-    }
-    return prevStickyForIndex(i - 1);
+    const stickies = prevStickiesForIndex(i);
+    return stickies.length === 0 ? null : stickies[stickies.length - 1];
+  };
+
+  const prevStickiesForIndex = (i: number): IViewportProcessedStickyLayout[] => {
+    return layouts.slice(0, i)
+      .filter((layout) => layout !== undefined && layout !== null) as IViewportProcessedStickyLayout[];
   };
 
   const layoutForIndex = (i: number): IProcessedStickyLayout => {
@@ -137,6 +137,7 @@ export function updateStickyLayout(
       element: elementParams(element),
       prev: () => (i === 0 ? null : layoutForIndex(i - 1)),
       prevSticky: () => prevStickyForIndex(i),
+      prevStickies: () => prevStickiesForIndex(i),
       prevElement:
         i === 0
           ? () => null
