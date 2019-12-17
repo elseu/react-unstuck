@@ -1,6 +1,6 @@
 import { number, select } from '@storybook/addon-knobs';
 import { storiesOf } from '@storybook/react';
-import React, { useMemo, useState, useCallback, CSSProperties, forwardRef } from 'react';
+import React, { CSSProperties, forwardRef, useCallback, useMemo, useState } from 'react';
 
 import {
   shiftToTop,

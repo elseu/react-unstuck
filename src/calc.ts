@@ -67,14 +67,16 @@ function memoize<T>(f: () => T): () => T {
   };
 }
 
-function elementRootOffset(element: HTMLElement): number {
-  let offset = 0;
+function elementRootOffset(element: HTMLElement): { top: number, left: number } {
+  let top = 0;
+  let left = 0;
   let elem: HTMLElement | null = element;
   while (elem !== null) {
-    offset += elem.offsetTop;
+    top += elem.offsetTop;
+    left += elem.offsetLeft;
     elem = elem.offsetParent as HTMLElement;
   }
-  return offset;
+  return { top, left };
 }
 
 export function updateStickyLayout(
@@ -92,14 +94,14 @@ export function updateStickyLayout(
         ? scrollElement.offsetHeight
         : scrollElement.innerHeight,
     topOffset:
-      'nodeType' in scrollElement ? elementRootOffset(scrollElement) : 0,
+      'nodeType' in scrollElement ? elementRootOffset(scrollElement).top : 0,
   }));
 
   const elementParams = (element: HTMLElement) =>
     memoize(() => ({
       element,
       viewportTop:
-        elementRootOffset(element) -
+        elementRootOffset(element).top -
         viewport().topOffset -
         viewport().scrollTop,
       height: element.offsetHeight,
@@ -154,7 +156,8 @@ export function updateStickyLayout(
 
   stickyHandleElements.forEach((stickyHandleElement, i) => {
     const layout = layoutForIndex(i);
-    const { sticky, cssProps } = cssifyStickyLayout(layout, viewport);
+    const parentOffset = elementRootOffset(stickyHandleElement.element.offsetParent as HTMLElement);
+    const { sticky, cssProps } = cssifyStickyLayout(layout, viewport, parentOffset);
     stickyHandleElement.data.update(sticky, cssProps);
   });
 }
@@ -176,6 +179,7 @@ function processStickyLayout(
 function cssifyStickyLayout(
   layout: IProcessedStickyLayout,
   viewport: () => IViewportParameters,
+  parentOffset: { top: number, left: number },
 ): { sticky: boolean; cssProps: ICssStyleData } {
   if (layout === null) {
     return { sticky: false, cssProps: {} };
@@ -183,22 +187,26 @@ function cssifyStickyLayout(
 
   const sticky = true;
   const { top, z } = layout;
-  const { scrollTop, topOffset } = viewport();
+  const { scrollTop, topOffset, element } = viewport();
   const zIndex = 1000 + z;
 
   let cssProps = {};
   if (layout.scrolling) {
     cssProps = {
       position: 'absolute',
-      top: top + scrollTop + 'px',
-      width: '100%',
+      top: top + scrollTop - parentOffset.top + 'px',
+      left: 0,
+      right: 0,
       zIndex,
     };
   } else {
+    const windowWidth = window.innerWidth;
+    const marginElement = 'nodeType' in element ? element : document.body;
     cssProps = {
       position: 'fixed',
       top: top + topOffset + 'px',
-      width: '100%',
+      left: parentOffset.left + 'px',
+      right: (windowWidth - marginElement.offsetWidth - parentOffset.left) + 'px',
       zIndex,
     };
   }
