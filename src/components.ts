@@ -67,23 +67,20 @@ export const Sticky: FC<IStickyProps> = memo(({ behavior, children }) => {
   const stickyCopyRef = useRef<HTMLElement>();
   const behaviorState = useRef<any>({});
 
-  const handle: IStickyHandle = useMemo(
-    () => ({
-      behavior,
-      behaviorState: behaviorState.current,
-      update: (sticky, stickyCssProps) => {
-        (stickyCssProps as any).display = sticky ? 'block' : 'none';
-        cssProps.current = stickyCssProps;
-        if (stickyCopyRef.current) {
-          // Immediately set the style.
-          for (const k of Object.keys(stickyCssProps)) {
-            stickyCopyRef.current.style[k as any] = stickyCssProps[k];
-          }
+  const handle: IStickyHandle = {
+    behavior,
+    behaviorState: behaviorState.current,
+    update: (sticky, stickyCssProps) => {
+      (stickyCssProps as any).display = sticky ? 'block' : 'none';
+      cssProps.current = stickyCssProps;
+      if (stickyCopyRef.current) {
+        // Immediately set the style.
+        for (const k of Object.keys(stickyCssProps)) {
+          stickyCopyRef.current.style[k as any] = stickyCssProps[k];
         }
-      },
-    }),
-    [behavior, cssProps, stickyCopyRef],
-  );
+      }
+    },
+  };
 
   const ref = useGather(handle);
   const fixedElement = createElement(
