@@ -69,6 +69,7 @@ export const Sticky: FC<IStickyProps> = memo(({ behavior, strategy = 'render', c
   const fixedCssProps = useRef<ICssStyleData>({ display: 'none' });
   const placeholderCssProps = useRef<ICssStyleData>({ display: 'block' });
   const stickyCopyRef = useRef<HTMLElement>();
+  const placeholderHeightRef = useRef<number>(0);
   const behaviorState = useRef<any>({});
 
   const handle: IStickyHandle = {
@@ -87,10 +88,15 @@ export const Sticky: FC<IStickyProps> = memo(({ behavior, strategy = 'render', c
         stickyCopyNode.style[k as any] = stickyCssProps[k];
       }
       if (strategy === 'placeholder') {
-        if (enablePlaceholder && sticky && stickyCopyNode.offsetHeight > 0) {
+        if (!sticky && refNode.offsetHeight > 0) {
+          placeholderHeightRef.current = refNode.offsetHeight;
+        }
+        if (sticky) {
           // Set the placeholder height if the placeholder is visible.
-          refNode.style.display = placeholderCssProps.current.display = 'block';
-          refNode.style.height = placeholderCssProps.current.height = stickyCopyNode.offsetHeight + 'px';
+          const height = stickyCopyNode.offsetHeight > 0 ? stickyCopyNode.offsetHeight : placeholderHeightRef.current;
+          if (height > 0) {
+            refNode.style.height = placeholderCssProps.current.height = height + 'px';
+          }
         }
         setEnablePlaceholder(sticky);
       }
