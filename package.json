@@ -25,7 +25,8 @@
     "lint": "tslint --project .",
     "lint-fix": "tslint --project . --fix",
     "prepublishOnly": "npm run lint; npm run build",
-    "deploy": "semantic-release"
+    "deploy": "semantic-release",
+    "pretty-quick": "pretty-quick"
   },
   "main": "dist/index.js",
   "module": "dist/index.es.js",
@@ -68,6 +69,9 @@
     "@types/react-dom": "16.9.1",
     "@types/storybook__react": "^4.0.2",
     "eslint": "^6.5.1",
+    "husky": "^4.0.0",
+    "prettier": "^1.19.1",
+    "pretty-quick": "^2.0.1",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-scripts": "^3.3.0",
@@ -81,7 +85,13 @@
     "semantic-release": "^15.13.24",
     "storybook-addon-jsx": "^7.1.6",
     "tslint": "^5.20.0",
+    "tslint-config-prettier": "^1.18.0",
     "tslint-react": "^4.1.0",
     "typescript": "^3.6.4"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged --bail"
+    }
   }
 }

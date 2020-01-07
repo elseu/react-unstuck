@@ -7,8 +7,8 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState,
-} from 'react';
+  useState
+} from "react";
 
 interface IGatherEntry {
   element: HTMLElement;
@@ -24,7 +24,7 @@ interface IGatherUpdaterContext {
 }
 
 const GatherEntriesContext = createContext<IGatherEntriesContext>({
-  entries: [],
+  entries: []
 });
 const GatherUpdaterContext = createContext<IGatherUpdaterContext | null>(null);
 
@@ -37,22 +37,22 @@ function sortEntries(entries: IGatherEntry[]) {
 
   // Tag all elements with a special class.
   const className = `gather-selector-${classIndex++}`;
-  const elements = entries.map((entry) => entry.element);
-  elements.forEach((element) => {
+  const elements = entries.map(entry => entry.element);
+  elements.forEach(element => {
     element.classList.add(className);
   });
 
   // Fetch all elements with this class in document order, and put their entries into the array.
   const sortedEntries: IGatherEntry[] = [];
-  document.querySelectorAll(`.${className}`).forEach((element) => {
-    const entry = entries.find((e) => e.element === element);
+  document.querySelectorAll(`.${className}`).forEach(element => {
+    const entry = entries.find(e => e.element === element);
     if (entry) {
       sortedEntries.push(entry);
     }
   });
 
   // Remove the special class.
-  elements.forEach((element) => {
+  elements.forEach(element => {
     element.classList.remove(className);
   });
 
@@ -79,9 +79,9 @@ export const GatherContainer: FC<{}> = ({ children }) => {
           // Entries have changed.
           setEntries(this.entries);
         }
-      },
+      }
     }),
-    [setEntries],
+    [setEntries]
   );
   updaterValue.entries = entries;
 
@@ -92,8 +92,8 @@ export const GatherContainer: FC<{}> = ({ children }) => {
     createElement(
       GatherUpdaterContext.Provider,
       { value: updaterValue },
-      children,
-    ),
+      children
+    )
   );
 };
 
@@ -108,17 +108,16 @@ export function useGatheredData<T>(match: ElementSelector<T>): T[];
 
 export function useGatheredData(match: (elem: any) => boolean): any[] {
   const elements = useGatheredElements(match);
-  return useMemo(() => elements.map((e) => e.data), [elements]);
+  return useMemo(() => elements.map(e => e.data), [elements]);
 }
 
-export function useGatheredElements<T>(match: ElementSelector<T>): Array<IGatheredElement<T>>;
+export function useGatheredElements<T>(
+  match: ElementSelector<T>
+): Array<IGatheredElement<T>>;
 
 export function useGatheredElements(match: (elem: any) => boolean): any[] {
   const { entries } = useContext(GatherEntriesContext);
-  return useMemo(() => entries.filter((e) => match(e.data)), [
-    match,
-    entries,
-  ]);
+  return useMemo(() => entries.filter(e => match(e.data)), [match, entries]);
 }
 
 export function useGather<T>(data: T): RefObject<any> {
@@ -126,7 +125,7 @@ export function useGather<T>(data: T): RefObject<any> {
   const updater = useContext(GatherUpdaterContext);
   if (updater === null) {
     throw new Error(
-      'You should only call useGather() inside a GatherContainer context.',
+      "You should only call useGather() inside a GatherContainer context."
     );
   }
 
@@ -136,14 +135,14 @@ export function useGather<T>(data: T): RefObject<any> {
     }
 
     // Add the entry.
-    updater.update((current) => [...current, { element: ref.current, data }]);
+    updater.update(current => [...current, { element: ref.current, data }]);
 
     const refElement = ref.current;
 
     return () => {
       // Remove the entry.
-      updater.update((current) =>
-        current.filter((entry) => entry.element !== refElement),
+      updater.update(current =>
+        current.filter(entry => entry.element !== refElement)
       );
     };
   }, [data, updater]);
