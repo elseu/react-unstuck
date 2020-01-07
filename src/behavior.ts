@@ -78,7 +78,7 @@ export const stickToTopAndScrollDown: IStickyBehavior<IScrollDirectionState> = (
   state.prevHeight = height;
 
   const { scrollTop } = viewport();
-  const scrollDirection = scrollTop > prevScrollTop ? "down" : "up";
+  const scrollDirection = scrollTop >= prevScrollTop ? "down" : "up";
   state.prevScrollTop = scrollTop;
 
   if (viewportTop >= prevStickyBottom) {
