@@ -165,9 +165,12 @@ export function updateStickyLayout(
 
   stickyHandleElements.forEach((stickyHandleElement, i) => {
     const layout = layoutForIndex(i);
-    const parentOffset = elementRootOffset(
-      stickyHandleElement.element.offsetParent as HTMLElement
-    );
+    const offsetParent = stickyHandleElement.element
+      .offsetParent as HTMLElement;
+    const parentOffset =
+      offsetParent === scrollElement
+        ? { top: 0, left: 0 }
+        : elementRootOffset(offsetParent);
     const { sticky, cssProps } = cssifyStickyLayout(
       layout,
       viewport,
