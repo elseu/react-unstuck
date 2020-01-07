@@ -1,12 +1,6 @@
 import { number, select } from "@storybook/addon-knobs";
 import { storiesOf } from "@storybook/react";
-import React, {
-  CSSProperties,
-  forwardRef,
-  useCallback,
-  useMemo,
-  useState
-} from "react";
+import React, { CSSProperties, useCallback, useState } from "react";
 
 import {
   shiftToTop,
@@ -19,8 +13,8 @@ import {
 
 /* tslint:disable:no-console */
 
-import { IStickyBehavior } from "calc";
 import "../.storybook/global.css";
+import { IStickyBehavior } from "./calc";
 
 const stories = storiesOf("Sticky", module);
 
