@@ -3,18 +3,18 @@ import { storiesOf } from "@storybook/react";
 import React, { CSSProperties, useCallback, useState } from "react";
 
 import {
+  IStickyBehavior,
   shiftToTop,
   stickToTop,
   stickToTopAndScrollDown,
   Sticky,
   StickyContainer,
   StickyScrollContainer
-} from "index";
+} from "./index";
 
 /* tslint:disable:no-console */
 
 import "../.storybook/global.css";
-import { IStickyBehavior } from "./calc";
 
 const stories = storiesOf("Sticky", module);
 
