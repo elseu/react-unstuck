@@ -1,6 +1,7 @@
 {
   "name": "react-unstuck",
   "license": "MIT",
+  "version": "1.0.0",
   "peerDependencies": {
     "react": "^16.10.2",
     "react-dom": "^16.10.2"
