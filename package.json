@@ -1,5 +1,5 @@
 {
-  "name": "unstuck",
+  "name": "react-unstuck",
   "license": "MIT",
   "peerDependencies": {
     "react": "^16.10.2",
@@ -9,13 +9,13 @@
     "name": "Sebastiaan Besselsen",
     "email": "S.Besselsen@sdu.nl"
   },
-  "homepage": "https://github.com/elseu/sdu-unstuck",
+  "homepage": "https://github.com/elseu/react-unstuck",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/elseu/sdu-unstuck.git"
+    "url": "git+https://github.com/elseu/react-unstuck.git"
   },
   "bugs": {
-    "url": "https://github.com/elseu/sdu-unstuck/issues"
+    "url": "https://github.com/elseu/react-unstuck/issues"
   },
   "scripts": {
     "build": "rimraf dist; rollup -c; rimraf \"dist/*.stories.d.ts\"",

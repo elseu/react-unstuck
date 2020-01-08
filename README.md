@@ -1,4 +1,5 @@
 # Unstuck
+
 Sticky scrolling with custom behaviors
 
 TODO
@@ -9,13 +10,16 @@ TODO
 - [Developer](#developer)
 
 ## Installation
-`npm install -S unstuck`
+
+`npm install -S react-unstuck`
 
 ## Overview
+
 TODO!
 
 ## Typescript
-`unstuck` supports Typescript and contains generic typings. Of course you can also use it in plain old Javascript.
+
+`react-unstuck` supports Typescript and contains generic typings. Of course you can also use it in plain old Javascript.
 
 ## Developer
 
