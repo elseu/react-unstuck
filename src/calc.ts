@@ -167,13 +167,15 @@ export function updateStickyLayout(
 
   stickyHandleElements.forEach((stickyHandleElement, i) => {
     const layout = layoutForIndex(i);
-    const offsetParent = stickyHandleElement.element
-      .offsetParent as HTMLElement;
+    const placeholder = stickyHandleElement.data.placeholderRef.current;
+    const offsetParent = (placeholder
+      ? placeholder
+      : stickyHandleElement.element
+    ).offsetParent as HTMLElement;
     const parentOffset =
       offsetParent === scrollElement
         ? { top: 0, left: 0 }
         : elementRootOffset(offsetParent);
-    const placeholder = stickyHandleElement.data.placeholderRef.current;
     const placeholderOffset = placeholder
       ? elementRootOffset(placeholder)
       : { top: 0, left: 0 };
@@ -213,7 +215,7 @@ function cssifyStickyLayout(
   let cssProps: ICssStyleData = {
     left: "inherit",
     top: "inherit",
-    zIndex: "inherit",
+    zIndex: 1,
     width: "100%"
   };
 
