@@ -13,7 +13,6 @@ interface IViewportParameters {
 }
 
 interface IElementParameters {
-  element: HTMLElement;
   viewportTop: number;
   height: number;
 }
