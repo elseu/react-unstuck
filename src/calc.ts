@@ -238,7 +238,7 @@ function cssifyStickyLayout(
     };
   } else {
     cssProps = {
-      left: placeholderOffset.left - parentOffset.left + "px",
+      left: placeholderOffset.left + "px",
       position: "fixed",
       top: top + topOffset + "px",
       width: placeholderWidth !== null ? placeholderWidth + "px" : "100%",
