@@ -54,7 +54,7 @@ export interface IStickyProps {
   behavior: IStickyBehavior;
 }
 
-const wrapperStyle = { display: "block", position: "absolute" };
+const wrapperStyle = { display: "block", position: "absolute", width: "100%" };
 const placeholderStyle = { display: "block", position: "relative" };
 
 export const Sticky: FC<IStickyProps> = memo(({ behavior, children }) => {

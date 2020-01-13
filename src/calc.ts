@@ -174,10 +174,17 @@ export function updateStickyLayout(
       offsetParent === scrollElement
         ? { top: 0, left: 0 }
         : elementRootOffset(offsetParent);
+    const placeholder = stickyHandleElement.data.placeholderRef.current;
+    const placeholderOffset = placeholder
+      ? elementRootOffset(placeholder)
+      : { top: 0, left: 0 };
+    const placeholderWidth = placeholder ? placeholder.offsetWidth : null;
     const { sticky, cssProps } = cssifyStickyLayout(
       layout,
       viewport,
-      parentOffset
+      parentOffset,
+      placeholderOffset,
+      placeholderWidth
     );
     stickyHandleElement.data.update(sticky, cssProps);
   });
@@ -200,13 +207,15 @@ function processStickyLayout(
 function cssifyStickyLayout(
   layout: IProcessedStickyLayout,
   viewport: () => IViewportParameters,
-  parentOffset: { top: number; left: number }
+  parentOffset: { top: number; left: number },
+  placeholderOffset: { top: number; left: number },
+  placeholderWidth: number | null
 ): { sticky: boolean; cssProps: ICssStyleData } {
   let cssProps: ICssStyleData = {
     left: "inherit",
-    right: "inherit",
     top: "inherit",
-    zIndex: "inherit"
+    zIndex: "inherit",
+    width: "100%"
   };
 
   if (layout === null) {
@@ -215,25 +224,23 @@ function cssifyStickyLayout(
 
   const sticky = true;
   const { top, z } = layout;
-  const { scrollTop, topOffset, element } = viewport();
+  const { scrollTop, topOffset } = viewport();
   const zIndex = 1000 + z;
 
   if (layout.scrolling) {
     cssProps = {
-      left: 0,
+      left: placeholderOffset.left - parentOffset.left + "px",
       position: "absolute",
-      right: 0,
       top: top + scrollTop - parentOffset.top + "px",
+      width: placeholderWidth !== null ? placeholderWidth + "px" : "100%",
       zIndex
     };
   } else {
-    const windowWidth = window.innerWidth;
-    const marginElement = "nodeType" in element ? element : document.body;
     cssProps = {
-      left: parentOffset.left + "px",
+      left: placeholderOffset.left - parentOffset.left + "px",
       position: "fixed",
-      right: windowWidth - marginElement.offsetWidth - parentOffset.left + "px",
       top: top + topOffset + "px",
+      width: placeholderWidth !== null ? placeholderWidth + "px" : "100%",
       zIndex
     };
   }
