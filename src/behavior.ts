@@ -82,6 +82,7 @@ export const stickToTopAndScrollDown: IStickyBehavior<IScrollDirectionState> = (
   state.prevScrollTop = scrollTop;
 
   if (viewportTop >= prevStickyBottom) {
+    delete state.anchorScrollTop;
     return null;
   }
 
