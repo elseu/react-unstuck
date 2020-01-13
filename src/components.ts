@@ -1,18 +1,14 @@
 import {
-  Children,
-  cloneElement,
   createElement,
   CSSProperties,
   FC,
   Fragment,
   memo,
   ReactElement,
-  Ref,
   RefObject,
   useCallback,
   useEffect,
-  useRef,
-  useState
+  useRef
 } from "react";
 import {
   ICssStyleData,
@@ -56,104 +52,51 @@ export const StickyContainer: FC<{}> = ({ children }) => {
 
 export interface IStickyProps {
   behavior: IStickyBehavior;
-  strategy?: "placeholder" | "render";
 }
 
-function isReactElementWithRef(
-  elem: any
-): elem is ReactElement<{ ref: Ref<any> }> {
-  return "type" in elem;
-}
+const wrapperStyle = { display: "block", position: "absolute" };
+const placeholderStyle = { display: "block", position: "relative" };
 
-export const Sticky: FC<IStickyProps> = memo(
-  ({ behavior, strategy = "render", children }) => {
-    const [enablePlaceholder, setEnablePlaceholder] = useState(false);
-    const fixedCssProps = useRef<ICssStyleData>({ display: "none" });
-    const placeholderCssProps = useRef<ICssStyleData>({ display: "block" });
-    const stickyCopyRef = useRef<HTMLElement>();
-    const placeholderHeightRef = useRef<number>(0);
-    const behaviorState = useRef<any>({});
+export const Sticky: FC<IStickyProps> = memo(({ behavior, children }) => {
+  const behaviorState = useRef<any>({});
+  const placeholderRef = useRef<HTMLElement>();
 
-    const handle: IStickyHandle = {
-      behavior,
-      behaviorState: behaviorState.current,
-      update: (sticky, stickyCssProps) => {
-        (stickyCssProps as any).display = sticky ? "block" : "none";
-        fixedCssProps.current = stickyCssProps;
-        const stickyCopyNode = stickyCopyRef.current;
-        const refNode = ref.current as HTMLElement;
-        if (!stickyCopyNode || !refNode) {
-          return;
-        }
-        // Immediately set the style.
-        for (const k of Object.keys(stickyCssProps)) {
-          stickyCopyNode.style[k as any] = stickyCssProps[k];
-        }
-        if (strategy === "placeholder") {
-          if (!sticky && refNode.offsetHeight > 0) {
-            placeholderHeightRef.current = refNode.offsetHeight;
-          }
-          if (sticky) {
-            // Set the placeholder height if the placeholder is visible.
-            const height =
-              stickyCopyNode.offsetHeight > 0
-                ? stickyCopyNode.offsetHeight
-                : placeholderHeightRef.current;
-            if (height > 0) {
-              refNode.style.height = placeholderCssProps.current.height =
-                height + "px";
-            }
-          }
-          setEnablePlaceholder(sticky);
-        }
+  let ref: RefObject<HTMLElement>;
+  const handle: IStickyHandle = {
+    behavior,
+    behaviorState: behaviorState.current,
+    placeholderRef,
+    update: (sticky, stickyCssProps) => {
+      const wrapper = ref.current;
+      const placeholder = placeholderRef.current;
+      if (!wrapper || !placeholder) {
+        return;
       }
-    };
-
-    let ref: RefObject<any>;
-    try {
-      ref = useGather(handle);
-    } catch (e) {
-      // We are not running in a scroll container. Just show the content.
-      return createElement(Fragment, {}, children);
+      const wrapperCssProps: ICssStyleData = {
+        ...wrapperStyle,
+        ...stickyCssProps
+      };
+      for (const k of Object.keys(wrapperCssProps)) {
+        wrapper.style[k as any] = wrapperCssProps[k];
+      }
+      placeholder.style.height = wrapper.offsetHeight + "px";
+      wrapper.style.width = placeholder.offsetWidth + "px";
     }
-    const fixedElement = createElement(
-      "div",
-      {
-        ref: stickyCopyRef,
-        style: { ...fixedCssProps.current }
-      },
-      strategy === "render" || enablePlaceholder ? children : null
-    );
+  };
 
-    let haveMappedRef = false;
-    const childrenWithRef = Children.map(children, child => {
-      if (!haveMappedRef && isReactElementWithRef(child)) {
-        haveMappedRef = true;
-        if (strategy === "placeholder") {
-          // Show a placeholder instead and use its coordinates.
-          const currentPlaceholderCssProps = { ...placeholderCssProps.current };
-          if (!enablePlaceholder) {
-            delete currentPlaceholderCssProps.height;
-          }
-
-          return createElement(
-            "div",
-            {
-              ref,
-              style: currentPlaceholderCssProps
-            },
-            enablePlaceholder ? null : child
-          );
-        } else {
-          return cloneElement(child, { ref });
-        }
-      }
-      return child;
-    });
-
-    return createElement(Fragment, {}, childrenWithRef, fixedElement);
+  try {
+    ref = useGather(handle);
+  } catch (e) {
+    // We are not running in a scroll container. Just show the content.
+    return createElement(Fragment, {}, children);
   }
-);
+  return createElement(
+    Fragment,
+    {},
+    createElement("div", { ref, style: wrapperStyle }, children),
+    createElement("div", { ref: placeholderRef, style: placeholderStyle })
+  );
+});
 
 function isStickyHandle(elem: any): elem is IStickyHandle {
   return "behavior" in elem && typeof elem.update === "function";
@@ -173,12 +116,21 @@ const StickyLayoutContainer: FC<{}> = ({ children }) => {
     [stickyHandleElements]
   );
 
-  useEffect(() => {
+  const updateLayoutBound = useCallback(() => {
     updateLayout(scrollElement);
+  }, [updateLayout, scrollElement]);
+
+  useEffect(() => {
+    updateLayoutBound();
+    return updateLayoutBound;
+  }, [updateLayoutBound]);
+
+  useEffect(() => {
+    window.addEventListener("resize", updateLayoutBound);
     return () => {
-      updateLayout(scrollElement);
+      window.removeEventListener("resize", updateLayoutBound);
     };
-  }, [scrollElement, updateLayout]);
+  }, [updateLayoutBound]);
 
   useScrollEvent(
     info => {

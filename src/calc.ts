@@ -1,3 +1,4 @@
+import { RefObject } from "react";
 import { IGatheredElement } from "./gather";
 
 export interface ICssStyleData {
@@ -54,6 +55,7 @@ interface IViewportProcessedStickyLayout {
 export interface IStickyHandle {
   behavior: IStickyBehavior;
   behaviorState: any;
+  placeholderRef: RefObject<HTMLElement | undefined>;
   update(stickyCopy: boolean, stickyCopyCss: ICssStyleData): void;
 }
 
@@ -101,15 +103,18 @@ export function updateStickyLayout(
       "nodeType" in scrollElement ? elementRootOffset(scrollElement).top : 0
   }));
 
-  const elementParams = (element: HTMLElement) =>
-    memoize(() => ({
-      element,
-      viewportTop:
-        elementRootOffset(element).top -
-        viewport().topOffset -
-        viewport().scrollTop,
-      height: element.offsetHeight
-    }));
+  const elementParams = (gatheredElement: IGatheredElement<IStickyHandle>) =>
+    memoize(() => {
+      const placeholder = gatheredElement.data.placeholderRef.current;
+      return {
+        viewportTop:
+          elementRootOffset(placeholder ? placeholder : gatheredElement.element)
+            .top -
+          viewport().topOffset -
+          viewport().scrollTop,
+        height: gatheredElement.element.offsetHeight
+      };
+    });
 
   const layouts: Array<
     IProcessedStickyLayout | undefined
@@ -144,18 +149,16 @@ export function updateStickyLayout(
       viewport,
       state: handle.behaviorState,
       index: i,
-      element: elementParams(element),
+      element: elementParams(stickyHandleElements[i]),
       prev: () => (i === 0 ? null : layoutForIndex(i - 1)),
       prevSticky: () => prevStickyForIndex(i),
       prevStickies: () => prevStickiesForIndex(i),
       prevElement:
-        i === 0
-          ? () => null
-          : elementParams(stickyHandleElements[i - 1].element),
+        i === 0 ? () => null : elementParams(stickyHandleElements[i - 1]),
       nextElement:
         i >= layouts.length - 1
           ? () => null
-          : elementParams(stickyHandleElements[i + 1].element)
+          : elementParams(stickyHandleElements[i + 1])
     });
 
     const processedLayout = processStickyLayout(layout, element, i);
@@ -199,8 +202,15 @@ function cssifyStickyLayout(
   viewport: () => IViewportParameters,
   parentOffset: { top: number; left: number }
 ): { sticky: boolean; cssProps: ICssStyleData } {
+  let cssProps: ICssStyleData = {
+    left: "inherit",
+    right: "inherit",
+    top: "inherit",
+    zIndex: "inherit"
+  };
+
   if (layout === null) {
-    return { sticky: false, cssProps: {} };
+    return { sticky: false, cssProps };
   }
 
   const sticky = true;
@@ -208,7 +218,6 @@ function cssifyStickyLayout(
   const { scrollTop, topOffset, element } = viewport();
   const zIndex = 1000 + z;
 
-  let cssProps = {};
   if (layout.scrolling) {
     cssProps = {
       left: 0,

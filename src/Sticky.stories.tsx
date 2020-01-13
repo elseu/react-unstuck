@@ -39,31 +39,23 @@ function selectBehavior(label: string, defaultValue: string = "stickToTop") {
   return behaviors[option];
 }
 
-interface IHeightChangingHeaderProps {
+interface IStatefulHeaderProps {
   style?: CSSProperties;
-  behavior: IStickyBehavior;
 }
 
-const HeightChangingHeader: React.FC<IHeightChangingHeaderProps> = ({
-  children,
-  behavior,
-  style = {}
-}) => {
-  const [higher, setHigher] = useState(false);
-  const onClick = useCallback(() => {
-    setHigher(x => !x);
-  }, [setHigher]);
-  return (
-    <Sticky behavior={behavior}>
-      <h1
-        onClick={onClick}
-        style={{ ...style, padding: higher ? "40px 0" : "10px 0" }}
-      >
-        {children}
+const StatefulHeader: React.FC<IStatefulHeaderProps> = React.forwardRef(
+  ({ children, style = {} }, ref) => {
+    const [count, setCount] = useState(0);
+    const onClick = useCallback(() => {
+      setCount(x => x + 1);
+    }, []);
+    return (
+      <h1 ref={ref} onClick={onClick} style={style}>
+        {children} ({count})
       </h1>
-    </Sticky>
-  );
-};
+    );
+  }
+);
 
 interface IStickyContentProps {
   behavior1: IStickyBehavior;
@@ -102,9 +94,11 @@ const StickyContent: React.FC<IStickyContentProps> = ({
         .map(i => (
           <p key={`bla-${i}`}>{`bla-${i}`}</p>
         ))}
-      <HeightChangingHeader behavior={behavior1} style={stickyStyle1}>
-        First
-      </HeightChangingHeader>
+      <Sticky behavior={behavior1}>
+        <StatefulHeader style={stickyStyle1}>
+          First aap die schaap blaat
+        </StatefulHeader>
+      </Sticky>
       {[...Array(10)]
         .map((_, i) => i)
         .map(i => (
