@@ -1,5 +1,7 @@
 import { IStickyBehavior } from "./calc";
 
+export const notSticky: IStickyBehavior = () => null;
+
 export const stickToTop: IStickyBehavior = ({ element, prevStickies }) => {
   const minTop = Math.max(0, ...prevStickies().map(sticky => sticky.bottom));
   if (element().viewportTop < minTop) {

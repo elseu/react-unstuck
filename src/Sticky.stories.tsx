@@ -4,6 +4,7 @@ import React, { CSSProperties, useCallback, useState } from "react";
 
 import {
   IStickyBehavior,
+  notSticky,
   shiftToTop,
   stickToTop,
   stickToTopAndScrollDown,
@@ -31,12 +32,18 @@ const stickyStyle4 = { ...stickyStyle, backgroundColor: "#015668" };
 const stickyStyle5 = { ...stickyStyle, backgroundColor: "#263f44" };
 
 function selectBehavior(label: string, defaultValue: string = "stickToTop") {
-  const options = ["stickToTop", "shiftToTop", "stickToTopAndScrollDown"];
+  const options = [
+    "stickToTop",
+    "shiftToTop",
+    "stickToTopAndScrollDown",
+    "notSticky"
+  ];
   const option = select(label, options, defaultValue);
   const behaviors: { [k: string]: IStickyBehavior } = {
     stickToTop,
     shiftToTop,
-    stickToTopAndScrollDown
+    stickToTopAndScrollDown,
+    notSticky
   };
   return behaviors[option];
 }
