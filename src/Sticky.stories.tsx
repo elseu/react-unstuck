@@ -1,6 +1,13 @@
 import { select } from "@storybook/addon-knobs";
 import { storiesOf } from "@storybook/react";
-import React, { CSSProperties, useCallback, useState } from "react";
+import React, {
+  CSSProperties,
+  RefObject,
+  useCallback,
+  useMemo,
+  useRef,
+  useState
+} from "react";
 
 import {
   IStickyBehavior,
@@ -15,6 +22,7 @@ import {
 
 /* tslint:disable:no-console */
 
+import { IStickyParameters } from "calc";
 import "../.storybook/global.css";
 
 const stories = storiesOf("Sticky", module);
@@ -194,6 +202,92 @@ stories.add("In window", () => {
         behavior4={behavior4}
         behavior5={behavior5}
       />
+    </StickyContainer>
+  );
+});
+
+const fullHeightStyle = {
+  backgroundColor: "#263f44",
+  borderBottom: "2px solid yellow"
+};
+
+/**
+ * Take a ref to an element and a sticky behavior; make the element sticky according to the behavior
+ * and make it 100% high under the sticky elements above it.
+ * @param ref
+ * @param stickyBehavior
+ */
+const stickyWithFullHeight = (
+  ref: RefObject<HTMLElement | undefined>,
+  stickyBehavior: IStickyBehavior
+) => (params: IStickyParameters) => {
+  // Calculate the sticky position for the element.
+  const stickyLayout = stickyBehavior(params);
+
+  // Calculate the top position of the element within the viewport; the sticky top position if sticky, the top of the scrolling element otherwise.
+  const elementViewportTop = stickyLayout?.top ?? params.element().viewportTop;
+
+  // Calculate the 100% height: the viewport height minus the top position.
+  const height = Math.max(0, params.viewport().height - elementViewportTop);
+
+  if (ref.current) {
+    // Set the element to its computed 100% height.
+    ref.current.style.height = `${height}px`;
+  }
+
+  // Make the element sticky as computed by its normal sticky behavior.
+  return stickyLayout;
+};
+
+const FullHeightStickyContent: React.FC<{ behavior: IStickyBehavior }> = ({
+  behavior
+}) => {
+  const fullHeightRef = useRef<HTMLElement>();
+  const fullHeightStickyBehavior = useMemo(
+    () => stickyWithFullHeight(fullHeightRef, behavior),
+    [fullHeightRef, behavior]
+  );
+  return (
+    <>
+      {[...Array(20)]
+        .map((_, i) => i)
+        .map(i => (
+          <p key={`first-${i}`}>{`first-${i}`}</p>
+        ))}
+      <Sticky behavior={stickToTop}>
+        <h1 style={stickyStyle1}>This sticks to top</h1>
+      </Sticky>
+      {[...Array(40)]
+        .map((_, i) => i)
+        .map(i => (
+          <p key={`second-${i}`}>{`second-${i}`}</p>
+        ))}
+      <div style={{ clear: "both", overflow: "hidden" }}>
+        <div style={{ float: "left", width: "40%" }}>
+          <Sticky behavior={fullHeightStickyBehavior}>
+            <div ref={fullHeightRef} style={fullHeightStyle}>
+              This is full height
+            </div>
+          </Sticky>
+        </div>
+        <div style={{ float: "left", width: "60%" }}>
+          {[...Array(20)]
+            .map((_, i) => i)
+            .map(i => (
+              <p key={`fourth-left-${i}`}>{`fourth-left-${i}`}</p>
+            ))}
+        </div>
+      </div>
+    </>
+  );
+};
+
+stories.add("Full height", () => {
+  const behavior = selectBehavior("Behavior");
+
+  return (
+    <StickyContainer>
+      <FullHeightStickyContent behavior={behavior} />
     </StickyContainer>
   );
 });
