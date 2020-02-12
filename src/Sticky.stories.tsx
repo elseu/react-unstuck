@@ -3,6 +3,7 @@ import { storiesOf } from "@storybook/react";
 import React, { CSSProperties, useCallback, useState } from "react";
 
 import {
+  ILabels,
   IStickyBehavior,
   notSticky,
   shiftToTop,
@@ -77,6 +78,10 @@ interface IStickyContentProps {
   behavior5: IStickyBehavior;
 }
 
+function fullWidth({ labels }: { labels: ILabels }) {
+  return !!labels.fullWidth;
+}
+
 const StickyContent: React.FC<IStickyContentProps> = ({
   behavior1,
   behavior2,
@@ -108,8 +113,10 @@ const StickyContent: React.FC<IStickyContentProps> = ({
         .map(i => (
           <p key={`second-${i}`}>{`second-${i}`}</p>
         ))}
-      <Sticky behavior={behavior3}>
-        <h1 style={stickyStyle3}>Third</h1>
+      <Sticky behavior={behavior3} labels={{ fullWidth: true }}>
+        <h1 style={stickyStyle3}>
+          Third with a really really really really really really long title
+        </h1>
       </Sticky>
       {[...Array(40)]
         .map((_, i) => i)
@@ -118,6 +125,14 @@ const StickyContent: React.FC<IStickyContentProps> = ({
         ))}
       <div style={{ clear: "both", overflow: "hidden" }}>
         <div style={{ float: "left", width: "20%" }}>
+          {[...Array(30)]
+            .map((_, i) => i)
+            .map(i => (
+              <p key={`fourth-left-${i}`}>{`fourth-left-${i}`}</p>
+            ))}
+          <Sticky behavior={behavior4} respondsTo={fullWidth}>
+            <h1 style={stickyStyle4}>Fourth left</h1>
+          </Sticky>
           {[...Array(20)]
             .map((_, i) => i)
             .map(i => (
@@ -125,7 +140,7 @@ const StickyContent: React.FC<IStickyContentProps> = ({
             ))}
         </div>
         <div style={{ float: "left", width: "60%" }}>
-          <Sticky behavior={behavior4}>
+          <Sticky behavior={behavior4} respondsTo={fullWidth}>
             <h1 style={stickyStyle4}>Fourth</h1>
           </Sticky>
           {[...Array(20)]
@@ -140,9 +155,17 @@ const StickyContent: React.FC<IStickyContentProps> = ({
             .map(i => (
               <p key={`fourth-right-${i}`}>{`fourth-right-${i}`}</p>
             ))}
+          <Sticky behavior={behavior4} respondsTo={fullWidth}>
+            <h1 style={stickyStyle4}>Fourth right</h1>
+          </Sticky>
+          {[...Array(20)]
+            .map((_, i) => i)
+            .map(i => (
+              <p key={`fourth-right-${i}`}>{`fourth-right-${i}`}</p>
+            ))}
         </div>
       </div>
-      <Sticky behavior={behavior5}>
+      <Sticky behavior={behavior5} labels={{ fullWidth: true }}>
         <h1 style={stickyStyle5}>Fifth</h1>
       </Sticky>
       {[...Array(20)]

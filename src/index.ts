@@ -13,3 +13,4 @@ export {
   stickToTopFullHeight
 } from "./behavior";
 export { IStickyBehavior } from "./calc";
+export { ISelectorFunction, ILabels } from "./selectors";
