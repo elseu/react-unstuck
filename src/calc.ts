@@ -1,5 +1,6 @@
 import { RefObject } from "react";
 import { IGatheredElement } from "./gather";
+import { ILabels, ISelectorFunction } from "./selectors";
 
 export interface ICssStyleData {
   [k: string]: any;
@@ -56,6 +57,8 @@ interface IViewportProcessedStickyLayout {
 export interface IStickyHandle {
   behavior: IStickyBehavior;
   behaviorState: any;
+  labels: ILabels | undefined;
+  selectorFunction: ISelectorFunction | undefined;
   placeholderRef: RefObject<HTMLElement | undefined>;
   update(stickyCopy: boolean, stickyCopyCss: ICssStyleData): void;
 }
@@ -121,19 +124,35 @@ export function updateStickyLayout(
     IProcessedStickyLayout | undefined
   > = stickyHandleElements.map(() => undefined);
 
-  const prevStickyForIndex = (i: number): IProcessedStickyLayout => {
-    const stickies = prevStickiesForIndex(i);
+  const labelsForIndex: ILabels[] = stickyHandleElements.map(
+    ({ data }) => data.labels || {}
+  );
+
+  const prevStickyForIndex = (
+    i: number,
+    selectorFunction: ISelectorFunction | undefined
+  ): IProcessedStickyLayout => {
+    const stickies = prevStickiesForIndex(i, selectorFunction);
     return stickies.length === 0 ? null : stickies[stickies.length - 1];
   };
 
   const prevStickiesForIndex = (
-    i: number
+    i: number,
+    selectorFunction: ISelectorFunction | undefined
   ): IViewportProcessedStickyLayout[] => {
-    return layouts
+    const layoutsEntries = layouts
+      .map((layout, index) => ({ layout, index }))
       .slice(0, i)
-      .filter(
-        layout => layout !== undefined && layout !== null
-      ) as IViewportProcessedStickyLayout[];
+      .filter(({ layout }) => layout !== undefined && layout !== null);
+    const filteredLayoutEntries =
+      selectorFunction === undefined
+        ? layoutsEntries
+        : layoutsEntries.filter(({ index }) =>
+            selectorFunction({ labels: labelsForIndex[index] })
+          );
+    return filteredLayoutEntries.map(
+      ({ layout }) => layout
+    ) as IViewportProcessedStickyLayout[];
   };
 
   const layoutForIndex = (i: number): IProcessedStickyLayout => {
@@ -145,6 +164,7 @@ export function updateStickyLayout(
     }
 
     const { data: handle, element } = stickyHandleElements[i];
+    const { selectorFunction } = handle;
 
     const layout = handle.behavior({
       viewport,
@@ -152,8 +172,8 @@ export function updateStickyLayout(
       index: i,
       element: elementParams(stickyHandleElements[i]),
       prev: () => (i === 0 ? null : layoutForIndex(i - 1)),
-      prevSticky: () => prevStickyForIndex(i),
-      prevStickies: () => prevStickiesForIndex(i),
+      prevSticky: () => prevStickyForIndex(i, selectorFunction),
+      prevStickies: () => prevStickiesForIndex(i, selectorFunction),
       prevElement:
         i === 0 ? () => null : elementParams(stickyHandleElements[i - 1]),
       nextElement:
