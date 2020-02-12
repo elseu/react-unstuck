@@ -17,7 +17,12 @@ import {
   updateStickyLayout
 } from "./calc";
 import { GatherContainer, useGather, useGatheredElements } from "./gather";
-import { ScrollContainer, useScrollElement, useScrollEvent } from "./scroll";
+import {
+  ScrollContainer,
+  useScrollElement,
+  useResizeEvent,
+  useScrollEvent
+} from "./scroll";
 
 export type IStickyScrollContainerProps =
   | {
@@ -136,7 +141,13 @@ const StickyLayoutContainer: FC<{}> = ({ children }) => {
     info => {
       updateLayout(info.scrollElement);
     },
-    [updateLayout, updateLayout]
+    [updateLayout]
+  );
+  useResizeEvent(
+    info => {
+      updateLayout(info.scrollElement);
+    },
+    [updateLayout]
   );
 
   return createElement(Fragment, {}, children);
