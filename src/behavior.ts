@@ -136,3 +136,33 @@ export const stickToTopAndScrollDown: IStickyBehavior<IScrollDirectionState> = (
     top: prevStickyBottom + anchorScrollTop - scrollTop - height
   };
 };
+
+export const stickToTopFullHeight: IStickyBehavior = ({
+  element,
+  viewport,
+  prevStickies
+}) => {
+  const minTop = Math.max(0, ...prevStickies().map(sticky => sticky.bottom));
+
+  const elementViewportTop = element().viewportTop;
+  const viewportHeight = viewport().height;
+  if (elementViewportTop > viewport().height) {
+    // Element is not yet in view.
+    return null;
+  }
+
+  if (elementViewportTop < minTop) {
+    // Stick to top with full height.
+    return {
+      scrolling: false,
+      top: minTop,
+      fixedHeight: Math.max(0, viewportHeight - minTop)
+    };
+  }
+
+  return {
+    scrolling: true,
+    top: elementViewportTop,
+    fixedHeight: Math.max(0, viewportHeight - elementViewportTop)
+  };
+};

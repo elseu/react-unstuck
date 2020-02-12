@@ -9,6 +9,7 @@ export {
   notSticky,
   stickToTop,
   shiftToTop,
-  stickToTopAndScrollDown
+  stickToTopAndScrollDown,
+  stickToTopFullHeight
 } from "./behavior";
 export { IStickyBehavior } from "./calc";

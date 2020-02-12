@@ -39,6 +39,7 @@ interface IViewportStickyLayout {
   scrolling: boolean;
   top: number;
   z?: number;
+  fixedHeight?: number;
 }
 
 export type IProcessedStickyLayout = null | IViewportProcessedStickyLayout;
@@ -49,6 +50,7 @@ interface IViewportProcessedStickyLayout {
   height: number;
   bottom: number;
   z: number;
+  fixedHeight?: number;
 }
 
 export interface IStickyHandle {
@@ -216,7 +218,8 @@ function cssifyStickyLayout(
     left: "inherit",
     top: "inherit",
     zIndex: 1,
-    width: "100%"
+    width: "100%",
+    height: "auto"
   };
 
   if (layout === null) {
@@ -224,7 +227,7 @@ function cssifyStickyLayout(
   }
 
   const sticky = true;
-  const { top, z } = layout;
+  const { top, z, fixedHeight } = layout;
   const { scrollTop, topOffset } = viewport();
   const zIndex = 1000 + z;
 
@@ -234,6 +237,7 @@ function cssifyStickyLayout(
       position: "absolute",
       top: top + scrollTop - parentOffset.top + "px",
       width: placeholderWidth !== null ? placeholderWidth + "px" : "100%",
+      height: fixedHeight === undefined ? "auto" : fixedHeight + "px",
       zIndex
     };
   } else {
@@ -242,6 +246,7 @@ function cssifyStickyLayout(
       position: "fixed",
       top: top + topOffset + "px",
       width: placeholderWidth !== null ? placeholderWidth + "px" : "100%",
+      height: fixedHeight === undefined ? "auto" : fixedHeight + "px",
       zIndex
     };
   }
