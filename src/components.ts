@@ -8,7 +8,6 @@ import {
   RefObject,
   useCallback,
   useEffect,
-  useMemo,
   useRef
 } from "react";
 import {
@@ -24,7 +23,7 @@ import {
   useScrollElement,
   useScrollEvent
 } from "./scroll";
-import { ILabels, ISelector, selectorFunction } from "./selectors";
+import { ILabels, ISelectorFunction } from "./selectors";
 
 export type IStickyScrollContainerProps =
   | {
@@ -60,7 +59,7 @@ export const StickyContainer: FC<{}> = ({ children }) => {
 export interface IStickyProps {
   behavior: IStickyBehavior;
   labels?: ILabels;
-  respondsTo?: ISelector;
+  respondsTo?: ISelectorFunction;
 }
 
 const wrapperStyle = { display: "block", position: "absolute", width: "100%" };
@@ -70,16 +69,12 @@ export const Sticky: FC<IStickyProps> = memo(
   ({ behavior, children, labels, respondsTo }) => {
     const behaviorState = useRef<any>({});
     const placeholderRef = useRef<HTMLElement>();
-    const componentSelectorFunction = useMemo(
-      () => selectorFunction(respondsTo) || undefined,
-      [respondsTo]
-    );
 
     let ref: RefObject<HTMLElement>;
     const handle: IStickyHandle = {
       behavior,
       labels,
-      selectorFunction: componentSelectorFunction,
+      selectorFunction: respondsTo,
       behaviorState: behaviorState.current,
       placeholderRef,
       update: (sticky, stickyCssProps) => {

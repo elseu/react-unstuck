@@ -155,6 +155,41 @@ export function updateStickyLayout(
     ) as IViewportProcessedStickyLayout[];
   };
 
+  const filteredStickyHandleElementsWithIndex = (
+    selectorFunction: ISelectorFunction | undefined
+  ) => {
+    const handleElements = stickyHandleElements.map((handleElement, index) => ({
+      handleElement,
+      index
+    }));
+    return selectorFunction === undefined
+      ? handleElements
+      : handleElements.filter(({ handleElement }) =>
+          selectorFunction({ labels: handleElement.data.labels || {} })
+        );
+  };
+
+  const prevElementParamsForIndex = (
+    ix: number,
+    selectorFunction: ISelectorFunction | undefined
+  ): (() => IElementParameters | null) => {
+    const handleElement = filteredStickyHandleElementsWithIndex(
+      selectorFunction
+    )
+      .reverse()
+      .find(({ index }) => index < ix)?.handleElement;
+    return handleElement ? elementParams(handleElement) : () => null;
+  };
+  const nextElementParamsForIndex = (
+    ix: number,
+    selectorFunction: ISelectorFunction | undefined
+  ): (() => IElementParameters | null) => {
+    const handleElement = filteredStickyHandleElementsWithIndex(
+      selectorFunction
+    ).find(({ index }) => index > ix)?.handleElement;
+    return handleElement ? elementParams(handleElement) : () => null;
+  };
+
   const layoutForIndex = (i: number): IProcessedStickyLayout => {
     if (typeof layouts[i] !== "undefined") {
       return layouts[i] as IProcessedStickyLayout;
@@ -174,12 +209,8 @@ export function updateStickyLayout(
       prev: () => (i === 0 ? null : layoutForIndex(i - 1)),
       prevSticky: () => prevStickyForIndex(i, selectorFunction),
       prevStickies: () => prevStickiesForIndex(i, selectorFunction),
-      prevElement:
-        i === 0 ? () => null : elementParams(stickyHandleElements[i - 1]),
-      nextElement:
-        i >= layouts.length - 1
-          ? () => null
-          : elementParams(stickyHandleElements[i + 1])
+      prevElement: prevElementParamsForIndex(i, selectorFunction),
+      nextElement: nextElementParamsForIndex(i, selectorFunction)
     });
 
     const processedLayout = processStickyLayout(layout, element, i);
