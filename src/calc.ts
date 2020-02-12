@@ -124,71 +124,50 @@ export function updateStickyLayout(
     IProcessedStickyLayout | undefined
   > = stickyHandleElements.map(() => undefined);
 
-  const labelsForIndex: ILabels[] = stickyHandleElements.map(
-    ({ data }) => data.labels || {}
-  );
-
   const prevStickyForIndex = (
     i: number,
-    selectorFunction: ISelectorFunction | undefined
+    selectedStickyIndexes: () => number[]
   ): IProcessedStickyLayout => {
-    const stickies = prevStickiesForIndex(i, selectorFunction);
+    const stickies = prevStickiesForIndex(i, selectedStickyIndexes);
     return stickies.length === 0 ? null : stickies[stickies.length - 1];
   };
 
   const prevStickiesForIndex = (
     i: number,
-    selectorFunction: ISelectorFunction | undefined
+    selectedStickyIndexes: () => number[]
   ): IViewportProcessedStickyLayout[] => {
-    const layoutsEntries = layouts
-      .map((layout, index) => ({ layout, index }))
-      .slice(0, i)
-      .filter(({ layout }) => layout !== undefined && layout !== null);
-    const filteredLayoutEntries =
-      selectorFunction === undefined
-        ? layoutsEntries
-        : layoutsEntries.filter(({ index }) =>
-            selectorFunction({ labels: labelsForIndex[index] })
-          );
-    return filteredLayoutEntries.map(
-      ({ layout }) => layout
-    ) as IViewportProcessedStickyLayout[];
-  };
-
-  const filteredStickyHandleElementsWithIndex = (
-    selectorFunction: ISelectorFunction | undefined
-  ) => {
-    const handleElements = stickyHandleElements.map((handleElement, index) => ({
-      handleElement,
-      index
-    }));
-    return selectorFunction === undefined
-      ? handleElements
-      : handleElements.filter(({ handleElement }) =>
-          selectorFunction({ labels: handleElement.data.labels || {} })
-        );
+    return selectedStickyIndexes()
+      .filter(index => index < i)
+      .map(index => layouts[index])
+      .filter(
+        layout => layout !== undefined && layout !== null
+      ) as IViewportProcessedStickyLayout[];
   };
 
   const prevElementParamsForIndex = (
-    ix: number,
-    selectorFunction: ISelectorFunction | undefined
+    i: number,
+    selectedStickyIndexes: () => number[]
   ): (() => IElementParameters | null) => {
-    const handleElement = filteredStickyHandleElementsWithIndex(
-      selectorFunction
-    )
-      .reverse()
-      .find(({ index }) => index < ix)?.handleElement;
-    return handleElement ? elementParams(handleElement) : () => null;
+    const indexes = selectedStickyIndexes().filter(index => index < i);
+    if (indexes.length === 0) {
+      return () => null;
+    }
+    return elementParams(stickyHandleElements[indexes[indexes.length - 1]]);
   };
   const nextElementParamsForIndex = (
-    ix: number,
-    selectorFunction: ISelectorFunction | undefined
+    i: number,
+    selectedStickyIndexes: () => number[]
   ): (() => IElementParameters | null) => {
-    const handleElement = filteredStickyHandleElementsWithIndex(
-      selectorFunction
-    ).find(({ index }) => index > ix)?.handleElement;
-    return handleElement ? elementParams(handleElement) : () => null;
+    const indexes = selectedStickyIndexes().filter(index => index > i);
+    if (indexes.length === 0) {
+      return () => null;
+    }
+    return elementParams(stickyHandleElements[indexes[0]]);
   };
+
+  const allIndexes = [...Array(stickyHandleElements.length)].map(
+    (_, index) => index
+  );
 
   const layoutForIndex = (i: number): IProcessedStickyLayout => {
     if (typeof layouts[i] !== "undefined") {
@@ -200,6 +179,15 @@ export function updateStickyLayout(
 
     const { data: handle, element } = stickyHandleElements[i];
     const { selectorFunction } = handle;
+    const selectedStickyIndexes = memoize(() => {
+      return selectorFunction
+        ? allIndexes.filter(index =>
+            selectorFunction({
+              labels: stickyHandleElements[index].data.labels || {}
+            })
+          )
+        : allIndexes;
+    });
 
     const layout = handle.behavior({
       viewport,
@@ -207,10 +195,10 @@ export function updateStickyLayout(
       index: i,
       element: elementParams(stickyHandleElements[i]),
       prev: () => (i === 0 ? null : layoutForIndex(i - 1)),
-      prevSticky: () => prevStickyForIndex(i, selectorFunction),
-      prevStickies: () => prevStickiesForIndex(i, selectorFunction),
-      prevElement: prevElementParamsForIndex(i, selectorFunction),
-      nextElement: nextElementParamsForIndex(i, selectorFunction)
+      prevSticky: () => prevStickyForIndex(i, selectedStickyIndexes),
+      prevStickies: () => prevStickiesForIndex(i, selectedStickyIndexes),
+      prevElement: prevElementParamsForIndex(i, selectedStickyIndexes),
+      nextElement: nextElementParamsForIndex(i, selectedStickyIndexes)
     });
 
     const processedLayout = processStickyLayout(layout, element, i);
