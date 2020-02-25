@@ -8,6 +8,7 @@ import {
   RefObject,
   useCallback,
   useEffect,
+  useMemo,
   useRef
 } from "react";
 import {
@@ -16,7 +17,12 @@ import {
   IStickyHandle,
   updateStickyLayout
 } from "./calc";
-import { GatherContainer, useGather, useGatheredElements } from "./gather";
+import {
+  GatherContainer,
+  IGatheredElement,
+  useGather,
+  useGatheredElements
+} from "./gather";
 import {
   ScrollContainer,
   useResizeEvent,
@@ -114,18 +120,44 @@ function isStickyHandle(elem: any): elem is IStickyHandle {
   return "behavior" in elem && typeof elem.update === "function";
 }
 
+function calculateRespondsTo(
+  handleElements: Array<IGatheredElement<IStickyHandle>>
+): number[][] {
+  // Evaluate which elements respond to which.
+  const allIndexes = [...Array(handleElements.length)].map((_, i) => i);
+  return handleElements.map(stickyHandleElement => {
+    const { selectorFunction } = stickyHandleElement.data;
+    if (selectorFunction) {
+      return allIndexes.filter(i =>
+        selectorFunction({ labels: handleElements[i].data.labels ?? {} })
+      );
+    } else {
+      return allIndexes;
+    }
+  });
+}
+
 // A container that lays out sticky components and makes sure they are updated properly.
 const StickyLayoutContainer: FC<{}> = ({ children }) => {
   const stickyHandleElements = useGatheredElements(isStickyHandle);
+  const respondsToIndexes = useMemo(
+    () => calculateRespondsTo(stickyHandleElements),
+    [stickyHandleElements]
+  );
+
   const scrollElement = useScrollElement();
 
   const updateLayout = useCallback(
     (eventScrollElement: HTMLElement | Window) => {
       requestAnimationFrame(() => {
-        updateStickyLayout(stickyHandleElements, eventScrollElement);
+        updateStickyLayout(
+          stickyHandleElements,
+          eventScrollElement,
+          respondsToIndexes
+        );
       });
     },
-    [stickyHandleElements]
+    [stickyHandleElements, respondsToIndexes]
   );
 
   const updateLayoutBound = useCallback(() => {
