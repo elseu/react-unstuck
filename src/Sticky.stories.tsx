@@ -17,8 +17,6 @@ import {
 
 /* tslint:disable:no-console */
 
-import "../.storybook/global.css";
-
 const stories = storiesOf("Sticky", module);
 
 const backgroundColor = "#fff1cf";
@@ -63,7 +61,7 @@ const StatefulHeader: React.FC<IStatefulHeaderProps> = React.forwardRef(
       setCount(x => x + 1);
     }, []);
     return (
-      <h1 ref={ref} onClick={onClick} style={style}>
+      <h1 onClick={onClick} style={style}>
         {children} ({count})
       </h1>
     );
