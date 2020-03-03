@@ -21,19 +21,12 @@ interface IElementParameters {
 export interface IStickyParameters<S = any> {
   state: S;
   index: number;
-
   viewport(): IViewportParameters;
-
   element(): IElementParameters;
-
   prev(): IProcessedStickyLayout;
-
   prevSticky(): IProcessedStickyLayout;
-
   prevStickies(): IViewportProcessedStickyLayout[];
-
   prevElement(): IElementParameters | null;
-
   nextElement(): IElementParameters | null;
 }
 
@@ -67,7 +60,6 @@ export interface IStickyHandle {
   labels: ILabels | undefined;
   selectorFunction: ISelectorFunction | undefined;
   placeholderRef: RefObject<HTMLElement | undefined>;
-
   update(stickyCopy: boolean, stickyCopyCss: ICssStyleData): void;
 }
 
