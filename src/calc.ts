@@ -21,12 +21,19 @@ interface IElementParameters {
 export interface IStickyParameters<S = any> {
   state: S;
   index: number;
+
   viewport(): IViewportParameters;
+
   element(): IElementParameters;
+
   prev(): IProcessedStickyLayout;
+
   prevSticky(): IProcessedStickyLayout;
+
   prevStickies(): IViewportProcessedStickyLayout[];
+
   prevElement(): IElementParameters | null;
+
   nextElement(): IElementParameters | null;
 }
 
@@ -60,6 +67,7 @@ export interface IStickyHandle {
   labels: ILabels | undefined;
   selectorFunction: ISelectorFunction | undefined;
   placeholderRef: RefObject<HTMLElement | undefined>;
+
   update(stickyCopy: boolean, stickyCopyCss: ICssStyleData): void;
 }
 
@@ -94,19 +102,29 @@ export function updateStickyLayout(
   scrollElement: HTMLElement | Window,
   respondsToIndexes: number[][]
 ): void {
-  const viewport = memoize(() => ({
-    element: scrollElement,
-    height:
-      "offsetHeight" in scrollElement
-        ? scrollElement.offsetHeight
-        : scrollElement.innerHeight,
-    scrollTop:
-      "scrollY" in scrollElement
-        ? scrollElement.scrollY
-        : scrollElement.scrollTop,
-    topOffset:
-      "nodeType" in scrollElement ? elementRootOffset(scrollElement).top : 0
-  }));
+  const viewport = memoize(() => {
+    let scrollTop: number = 0;
+    if ("scrollY" in scrollElement) {
+      scrollTop = scrollElement.scrollY;
+    }
+    if (!scrollTop && "scrollTop" in scrollElement) {
+      scrollTop = scrollElement.scrollTop;
+    }
+    if (!scrollTop && "pageYOffset" in scrollElement) {
+      scrollTop = scrollElement.pageYOffset;
+    }
+
+    return {
+      element: scrollElement,
+      height:
+        "offsetHeight" in scrollElement
+          ? scrollElement.offsetHeight
+          : scrollElement.innerHeight,
+      scrollTop,
+      topOffset:
+        "nodeType" in scrollElement ? elementRootOffset(scrollElement).top : 0
+    };
+  });
 
   const elementParams = (gatheredElement: IGatheredElement<IStickyHandle>) =>
     memoize(() => {
