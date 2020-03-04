@@ -94,19 +94,28 @@ export function updateStickyLayout(
   scrollElement: HTMLElement | Window,
   respondsToIndexes: number[][]
 ): void {
-  const viewport = memoize(() => ({
-    element: scrollElement,
-    height:
-      "offsetHeight" in scrollElement
-        ? scrollElement.offsetHeight
-        : scrollElement.innerHeight,
-    scrollTop:
-      "scrollY" in scrollElement
-        ? scrollElement.scrollY
-        : scrollElement.scrollTop,
-    topOffset:
-      "nodeType" in scrollElement ? elementRootOffset(scrollElement).top : 0
-  }));
+  const viewport = memoize(() => {
+    let scrollTop: number = 0;
+    if ("scrollY" in scrollElement) {
+      scrollTop = scrollElement.scrollY;
+    } else if ("scrollTop" in scrollElement) {
+      scrollTop = scrollElement.scrollTop;
+    } else if ("pageYOffset" in scrollElement) {
+      // @ts-ignore (because of pageYOffset is not in window typing)
+      scrollTop = scrollElement.pageYOffset;
+    }
+
+    return {
+      element: scrollElement,
+      height:
+        "offsetHeight" in scrollElement
+          ? scrollElement.offsetHeight
+          : scrollElement.innerHeight,
+      scrollTop,
+      topOffset:
+        "nodeType" in scrollElement ? elementRootOffset(scrollElement).top : 0
+    };
+  });
 
   const elementParams = (gatheredElement: IGatheredElement<IStickyHandle>) =>
     memoize(() => {
