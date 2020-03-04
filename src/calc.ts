@@ -98,11 +98,10 @@ export function updateStickyLayout(
     let scrollTop: number = 0;
     if ("scrollY" in scrollElement) {
       scrollTop = scrollElement.scrollY;
-    }
-    if (!scrollTop && "scrollTop" in scrollElement) {
+    } else if ("scrollTop" in scrollElement) {
       scrollTop = scrollElement.scrollTop;
-    }
-    if (!scrollTop && "pageYOffset" in scrollElement) {
+    } else if ("pageYOffset" in scrollElement) {
+      // @ts-ignore (because of pageYOffset is not in window typing)
       scrollTop = scrollElement.pageYOffset;
     }
 
