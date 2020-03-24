@@ -125,9 +125,9 @@ export function useResizeEvent(
     [scrollElement, callbackF]
   );
   useEffect(() => {
-    window.top.addEventListener("resize", onResize);
+    window.addEventListener("resize", onResize);
     return () => {
-      window.top.removeEventListener("resize", onResize);
+      window.removeEventListener("resize", onResize);
     };
   }, [onResize]);
 }
