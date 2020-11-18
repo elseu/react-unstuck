@@ -13,11 +13,11 @@ import {
 } from "react";
 
 interface IScrollContext {
-  scrollElement: HTMLElement | Window;
+  scrollElement: HTMLElement | Window | null;
 }
 
 const defaultScrollContext: IScrollContext = {
-  scrollElement: window
+  scrollElement: typeof window !== "undefined" ? window : null
 };
 
 const ScrollContext = createContext(defaultScrollContext);
