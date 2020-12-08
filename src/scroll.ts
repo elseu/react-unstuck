@@ -137,10 +137,6 @@ export function useResizeEvent(
     [scrollElement, callbackF]
   );
   useEffect(() => {
-    if (typeof (window) === 'undefined') {
-      return;
-    }
-
     window.addEventListener("resize", onResize);
     return () => {
       window.removeEventListener("resize", onResize);
