@@ -17,7 +17,7 @@ interface IScrollContext {
 }
 
 const defaultScrollContext: IScrollContext = {
-  scrollElement: typeof (window) !== "undefined" ? window : null
+  scrollElement: typeof window !== "undefined" ? window : null
 };
 
 export const ScrollContext = createContext(defaultScrollContext);
