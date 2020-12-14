@@ -14,6 +14,7 @@ import {
   StickyContainer,
   StickyScrollContainer
 } from "./index";
+import { ScrollContext } from "./scroll";
 
 /* tslint:disable:no-console */
 
@@ -273,5 +274,15 @@ stories.add("Full height", () => {
     <StickyContainer>
       <FullHeightStickyContent behavior={behavior} />
     </StickyContainer>
+  );
+});
+
+stories.add("Test SSR", () => {
+  const behavior = selectBehavior("Behavior");
+
+  return (
+    <ScrollContext.Provider value={{ scrollElement: null }}>
+      <FullHeightStickyContent behavior={behavior} />
+    </ScrollContext.Provider>
   );
 });

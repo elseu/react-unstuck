@@ -20,7 +20,7 @@ const defaultScrollContext: IScrollContext = {
   scrollElement: typeof (window) !== "undefined" ? window : null
 };
 
-const ScrollContext = createContext(defaultScrollContext);
+export const ScrollContext = createContext(defaultScrollContext);
 
 export type IScrollContainerProps =
   | {
