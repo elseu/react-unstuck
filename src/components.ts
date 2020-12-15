@@ -161,6 +161,10 @@ const StickyLayoutContainer: FC<{}> = ({ children }) => {
   );
 
   const updateLayoutBound = useCallback(() => {
+    if (!scrollElement) {
+      return;
+    }
+
     updateLayout(scrollElement);
   }, [updateLayout, scrollElement]);
 

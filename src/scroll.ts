@@ -13,14 +13,14 @@ import {
 } from "react";
 
 interface IScrollContext {
-  scrollElement: HTMLElement | Window;
+  scrollElement: HTMLElement | Window | null;
 }
 
 const defaultScrollContext: IScrollContext = {
-  scrollElement: window
+  scrollElement: typeof window !== "undefined" ? window : null
 };
 
-const ScrollContext = createContext(defaultScrollContext);
+export const ScrollContext = createContext(defaultScrollContext);
 
 export type IScrollContainerProps =
   | {
@@ -82,7 +82,7 @@ export interface IResizeEventInfo {
   event: Event;
 }
 
-export function useScrollElement(): HTMLElement | Window {
+export function useScrollElement(): HTMLElement | Window | null {
   return useContext(ScrollContext).scrollElement;
 }
 
@@ -94,6 +94,10 @@ export function useScrollEvent(
   const callbackF = useCallback(f, deps);
   const onScroll = useCallback(
     (event: Event) => {
+      if (!scrollElement) {
+        return;
+      }
+
       callbackF({
         scrollElement,
         event
@@ -102,6 +106,10 @@ export function useScrollEvent(
     [scrollElement, callbackF]
   );
   useEffect(() => {
+    if (!scrollElement) {
+      return;
+    }
+
     scrollElement.addEventListener("scroll", onScroll);
     return () => {
       scrollElement.removeEventListener("scroll", onScroll);
@@ -117,6 +125,10 @@ export function useResizeEvent(
   const callbackF = useCallback(f, deps);
   const onResize = useCallback(
     (event: Event) => {
+      if (!scrollElement) {
+        return;
+      }
+
       callbackF({
         scrollElement,
         event
