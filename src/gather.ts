@@ -44,7 +44,7 @@ function sortEntries(entries: IGatherEntry[]) {
 
   // Fetch all elements with this class in document order, and put their entries into the array.
   const sortedEntries: IGatherEntry[] = [];
-  document.querySelectorAll(`.${className}`).forEach(element => {
+  Array.prototype.slice.call(document.querySelectorAll(`.${className}`)).forEach(element => {
     const entry = entries.find(e => e.element === element);
     if (entry) {
       sortedEntries.push(entry);
