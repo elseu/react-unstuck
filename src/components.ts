@@ -110,7 +110,14 @@ export const Sticky: FC<IStickyProps> = memo(
     return createElement(
       Fragment,
       {},
-      createElement("div", { ref, style: wrapperStyle }, children),
+      createElement(
+        "div",
+        {
+          ref,
+          style: typeof window !== "undefined" ? wrapperStyle : undefined
+        },
+        children
+      ),
       createElement("div", { ref: placeholderRef, style: placeholderStyle })
     );
   }
