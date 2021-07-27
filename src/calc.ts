@@ -240,7 +240,7 @@ function processStickyLayout(
   const height = element.offsetHeight;
   const bottom = layout.top + height;
   const z = layout.z ?? -1 * index;
-  return { height, bottom, z, ...layout };
+  return { element, height, bottom, z, ...layout };
 }
 
 function cssifyStickyLayout(
