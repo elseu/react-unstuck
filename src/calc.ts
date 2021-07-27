@@ -46,6 +46,7 @@ interface IViewportStickyLayout {
 export type IProcessedStickyLayout = null | IViewportProcessedStickyLayout;
 
 interface IViewportProcessedStickyLayout {
+  element: HTMLElement;
   scrolling: boolean;
   top: number;
   height: number;
