@@ -30,7 +30,7 @@ export interface IStickyParameters<S = any> {
   nextElement(): IElementParameters | null;
 }
 
-export type IStickyBehavior<S = any> = (
+export type IStickyBehaviour<S = any> = (
   params: IStickyParameters<S>
 ) => IStickyLayout;
 
@@ -55,8 +55,8 @@ interface IViewportProcessedStickyLayout {
 }
 
 export interface IStickyHandle {
-  behavior: IStickyBehavior;
-  behaviorState: any;
+  behaviour: IStickyBehaviour;
+  behaviourState: any;
   labels: ILabels | undefined;
   selectorFunction: ISelectorFunction | undefined;
   placeholderRef: RefObject<HTMLElement | undefined>;
@@ -186,9 +186,9 @@ export function updateStickyLayout(
     const { data: handle, element } = stickyHandleElements[i];
     const selectedStickyIndexes = respondsToIndexes[i];
 
-    const layout = handle.behavior({
+    const layout = handle.behaviour({
       viewport,
-      state: handle.behaviorState,
+      state: handle.behaviourState,
       index: i,
       element: elementParams(stickyHandleElements[i]),
       prev: () => (i === 0 ? null : layoutForIndex(i - 1)),

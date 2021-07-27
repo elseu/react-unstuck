@@ -1,6 +1,6 @@
 # Unstuck
 
-Sticky scrolling with custom behaviors
+Sticky scrolling with custom behaviours
 
 TODO
 

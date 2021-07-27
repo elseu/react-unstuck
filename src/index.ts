@@ -11,6 +11,6 @@ export {
   shiftToTop,
   stickToTopAndScrollDown,
   stickToTopFullHeight
-} from "./behavior";
-export { IStickyBehavior } from "./calc";
+} from "./behaviour";
+export { IStickyBehaviour } from "./calc";
 export { ISelectorFunction, ILabels } from "./selectors";

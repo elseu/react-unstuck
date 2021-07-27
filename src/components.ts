@@ -13,7 +13,7 @@ import {
 } from "react";
 import {
   ICssStyleData,
-  IStickyBehavior,
+  IStickyBehaviour,
   IStickyHandle,
   updateStickyLayout
 } from "./calc";
@@ -63,7 +63,7 @@ export const StickyContainer: FC<{}> = ({ children }) => {
 };
 
 export interface IStickyProps {
-  behavior: IStickyBehavior;
+  behaviour: IStickyBehaviour;
   labels?: ILabels;
   respondsTo?: ISelectorFunction;
 }
@@ -72,16 +72,16 @@ const wrapperStyle = { display: "block", position: "absolute", width: "100%" };
 const placeholderStyle = { display: "block", position: "relative" };
 
 export const Sticky: FC<IStickyProps> = memo(
-  ({ behavior, children, labels, respondsTo }) => {
-    const behaviorState = useRef<any>({});
+  ({ behaviour, children, labels, respondsTo }) => {
+    const behaviourState = useRef<any>({});
     const placeholderRef = useRef<HTMLElement>();
 
     let ref: RefObject<HTMLElement>;
     const handle: IStickyHandle = {
-      behavior,
+      behaviour,
       labels,
       selectorFunction: respondsTo,
-      behaviorState: behaviorState.current,
+      behaviourState: behaviourState.current,
       placeholderRef,
       update: (sticky, stickyCssProps) => {
         const wrapper = ref.current;
@@ -124,7 +124,7 @@ export const Sticky: FC<IStickyProps> = memo(
 );
 
 function isStickyHandle(elem: any): elem is IStickyHandle {
-  return "behavior" in elem && typeof elem.update === "function";
+  return "behaviour" in elem && typeof elem.update === "function";
 }
 
 function calculateRespondsTo(

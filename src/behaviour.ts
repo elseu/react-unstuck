@@ -1,8 +1,8 @@
-import { IStickyBehavior } from "./calc";
+import { IStickyBehaviour } from "./calc";
 
-export const notSticky: IStickyBehavior = () => null;
+export const notSticky: IStickyBehaviour = () => null;
 
-export const stickToTop: IStickyBehavior = ({ element, prevStickies }) => {
+export const stickToTop: IStickyBehaviour = ({ element, prevStickies }) => {
   const minTop = Math.max(0, ...prevStickies().map(sticky => sticky.bottom));
   if (element().viewportTop < minTop) {
     return {
@@ -13,7 +13,7 @@ export const stickToTop: IStickyBehavior = ({ element, prevStickies }) => {
   return null;
 };
 
-export const shiftToTop: IStickyBehavior = ({
+export const shiftToTop: IStickyBehaviour = ({
   element,
   nextElement,
   prevStickies
@@ -21,7 +21,7 @@ export const shiftToTop: IStickyBehavior = ({
   const minTop = Math.max(0, ...prevStickies().map(sticky => sticky.bottom));
   const elementViewportTop = element().viewportTop;
   if (elementViewportTop >= minTop) {
-    // Element is down the page, no sticky behavior.
+    // Element is down the page, no sticky behaviour.
     return null;
   }
 
@@ -51,7 +51,7 @@ interface IScrollDirectionState {
   prevHeight?: number;
 }
 
-export const stickToTopAndScrollDown: IStickyBehavior<IScrollDirectionState> = ({
+export const stickToTopAndScrollDown: IStickyBehaviour<IScrollDirectionState> = ({
   element,
   viewport,
   state,
@@ -137,7 +137,7 @@ export const stickToTopAndScrollDown: IStickyBehavior<IScrollDirectionState> = (
   };
 };
 
-export const stickToTopFullHeight: IStickyBehavior = ({
+export const stickToTopFullHeight: IStickyBehaviour = ({
   element,
   viewport,
   prevStickies

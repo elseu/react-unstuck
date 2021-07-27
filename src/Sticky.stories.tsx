@@ -4,7 +4,7 @@ import React, { CSSProperties, useCallback, useState } from "react";
 
 import {
   ILabels,
-  IStickyBehavior,
+  IStickyBehaviour,
   notSticky,
   shiftToTop,
   stickToTop,
@@ -32,7 +32,7 @@ const stickyStyle3 = { ...stickyStyle, backgroundColor: "#ffd369" };
 const stickyStyle4 = { ...stickyStyle, backgroundColor: "#015668" };
 const stickyStyle5 = { ...stickyStyle, backgroundColor: "#263f44" };
 
-function selectBehavior(label: string, defaultValue: string = "stickToTop") {
+function selectBehaviour(label: string, defaultValue: string = "stickToTop") {
   const options = [
     "stickToTop",
     "shiftToTop",
@@ -41,14 +41,14 @@ function selectBehavior(label: string, defaultValue: string = "stickToTop") {
     "notSticky"
   ];
   const option = select(label, options, defaultValue);
-  const behaviors: { [k: string]: IStickyBehavior } = {
+  const behaviours: { [k: string]: IStickyBehaviour } = {
     stickToTop,
     shiftToTop,
     stickToTopAndScrollDown,
     stickToTopFullHeight,
     notSticky
   };
-  return behaviors[option];
+  return behaviours[option];
 }
 
 interface IStatefulHeaderProps {
@@ -70,11 +70,11 @@ const StatefulHeader: React.FC<IStatefulHeaderProps> = React.forwardRef(
 );
 
 interface IStickyContentProps {
-  behavior1: IStickyBehavior;
-  behavior2: IStickyBehavior;
-  behavior3: IStickyBehavior;
-  behavior4: IStickyBehavior;
-  behavior5: IStickyBehavior;
+  behaviour1: IStickyBehaviour;
+  behaviour2: IStickyBehaviour;
+  behaviour3: IStickyBehaviour;
+  behaviour4: IStickyBehaviour;
+  behaviour5: IStickyBehaviour;
 }
 
 function fullWidth({ labels }: { labels: ILabels }) {
@@ -82,11 +82,11 @@ function fullWidth({ labels }: { labels: ILabels }) {
 }
 
 const StickyContent: React.FC<IStickyContentProps> = ({
-  behavior1,
-  behavior2,
-  behavior3,
-  behavior4,
-  behavior5
+  behaviour1,
+  behaviour2,
+  behaviour3,
+  behaviour4,
+  behaviour5
 }) => {
   return (
     <>
@@ -96,7 +96,7 @@ const StickyContent: React.FC<IStickyContentProps> = ({
         .map(i => (
           <p key={`bla-${i}`}>{`bla-${i}`}</p>
         ))}
-      <Sticky behavior={behavior1}>
+      <Sticky behaviour={behaviour1}>
         <StatefulHeader style={stickyStyle1}>First</StatefulHeader>
       </Sticky>
       {[...Array(10)]
@@ -104,7 +104,7 @@ const StickyContent: React.FC<IStickyContentProps> = ({
         .map(i => (
           <p key={`first-${i}`}>{`first-${i}`}</p>
         ))}
-      <Sticky behavior={behavior2}>
+      <Sticky behaviour={behaviour2}>
         <h1 style={stickyStyle2}>Second</h1>
       </Sticky>
       {[...Array(20)]
@@ -112,7 +112,7 @@ const StickyContent: React.FC<IStickyContentProps> = ({
         .map(i => (
           <p key={`second-${i}`}>{`second-${i}`}</p>
         ))}
-      <Sticky behavior={behavior3} labels={{ fullWidth: true }}>
+      <Sticky behaviour={behaviour3} labels={{ fullWidth: true }}>
         <h1 style={stickyStyle3}>
           Third with a really really really really really really long title
         </h1>
@@ -129,7 +129,7 @@ const StickyContent: React.FC<IStickyContentProps> = ({
             .map(i => (
               <p key={`fourth-left-${i}`}>{`fourth-left-${i}`}</p>
             ))}
-          <Sticky behavior={behavior4} respondsTo={fullWidth}>
+          <Sticky behaviour={behaviour4} respondsTo={fullWidth}>
             <h1 style={stickyStyle4}>Fourth left</h1>
           </Sticky>
           {[...Array(20)]
@@ -139,7 +139,7 @@ const StickyContent: React.FC<IStickyContentProps> = ({
             ))}
         </div>
         <div style={{ float: "left", width: "60%" }}>
-          <Sticky behavior={behavior4} respondsTo={fullWidth}>
+          <Sticky behaviour={behaviour4} respondsTo={fullWidth}>
             <h1 style={stickyStyle4}>Fourth</h1>
           </Sticky>
           {[...Array(20)]
@@ -154,7 +154,7 @@ const StickyContent: React.FC<IStickyContentProps> = ({
             .map(i => (
               <p key={`fourth-right-${i}`}>{`fourth-right-${i}`}</p>
             ))}
-          <Sticky behavior={behavior4} respondsTo={fullWidth}>
+          <Sticky behaviour={behaviour4} respondsTo={fullWidth}>
             <h1 style={stickyStyle4}>Fourth right</h1>
           </Sticky>
           {[...Array(20)]
@@ -164,7 +164,7 @@ const StickyContent: React.FC<IStickyContentProps> = ({
             ))}
         </div>
       </div>
-      <Sticky behavior={behavior5} labels={{ fullWidth: true }}>
+      <Sticky behaviour={behaviour5} labels={{ fullWidth: true }}>
         <h1 style={stickyStyle5}>Fifth</h1>
       </Sticky>
       {[...Array(20)]
@@ -177,11 +177,11 @@ const StickyContent: React.FC<IStickyContentProps> = ({
 };
 
 stories.add("In overflow container", () => {
-  const behavior1 = selectBehavior("Behavior 1");
-  const behavior2 = selectBehavior("Behavior 2");
-  const behavior3 = selectBehavior("Behavior 3");
-  const behavior4 = selectBehavior("Behavior 4");
-  const behavior5 = selectBehavior("Behavior 5");
+  const behaviour1 = selectBehaviour("Behaviour 1");
+  const behaviour2 = selectBehaviour("Behaviour 2");
+  const behaviour3 = selectBehaviour("Behaviour 3");
+  const behaviour4 = selectBehaviour("Behaviour 4");
+  const behaviour5 = selectBehaviour("Behaviour 5");
 
   return (
     <div style={{ paddingTop: "50px" }}>
@@ -192,11 +192,11 @@ stories.add("In overflow container", () => {
         }}
       >
         <StickyContent
-          behavior1={behavior1}
-          behavior2={behavior2}
-          behavior3={behavior3}
-          behavior4={behavior4}
-          behavior5={behavior5}
+          behaviour1={behaviour1}
+          behaviour2={behaviour2}
+          behaviour3={behaviour3}
+          behaviour4={behaviour4}
+          behaviour5={behaviour5}
         />
       </StickyScrollContainer>
     </div>
@@ -204,20 +204,20 @@ stories.add("In overflow container", () => {
 });
 
 stories.add("In window", () => {
-  const behavior1 = selectBehavior("Behavior 1");
-  const behavior2 = selectBehavior("Behavior 2");
-  const behavior3 = selectBehavior("Behavior 3");
-  const behavior4 = selectBehavior("Behavior 4");
-  const behavior5 = selectBehavior("Behavior 5");
+  const behaviour1 = selectBehaviour("Behaviour 1");
+  const behaviour2 = selectBehaviour("Behaviour 2");
+  const behaviour3 = selectBehaviour("Behaviour 3");
+  const behaviour4 = selectBehaviour("Behaviour 4");
+  const behaviour5 = selectBehaviour("Behaviour 5");
 
   return (
     <StickyContainer>
       <StickyContent
-        behavior1={behavior1}
-        behavior2={behavior2}
-        behavior3={behavior3}
-        behavior4={behavior4}
-        behavior5={behavior5}
+        behaviour1={behaviour1}
+        behaviour2={behaviour2}
+        behaviour3={behaviour3}
+        behaviour4={behaviour4}
+        behaviour5={behaviour5}
       />
     </StickyContainer>
   );
@@ -229,8 +229,8 @@ const fullHeightStyle = {
   height: "100%"
 };
 
-const FullHeightStickyContent: React.FC<{ behavior: IStickyBehavior }> = ({
-  behavior
+const FullHeightStickyContent: React.FC<{ behaviour: IStickyBehaviour }> = ({
+  behaviour
 }) => {
   return (
     <>
@@ -239,7 +239,7 @@ const FullHeightStickyContent: React.FC<{ behavior: IStickyBehavior }> = ({
         .map(i => (
           <p key={`first-${i}`}>{`first-${i}`}</p>
         ))}
-      <Sticky behavior={behavior}>
+      <Sticky behaviour={behaviour}>
         <h1 style={stickyStyle1}>
           This sticks to top and is a pretty long title
         </h1>
@@ -251,7 +251,7 @@ const FullHeightStickyContent: React.FC<{ behavior: IStickyBehavior }> = ({
         ))}
       <div style={{ clear: "both", overflow: "hidden" }}>
         <div style={{ float: "left", width: "40%" }}>
-          <Sticky behavior={stickToTopFullHeight}>
+          <Sticky behaviour={stickToTopFullHeight}>
             <div style={fullHeightStyle}>This is full height</div>
           </Sticky>
         </div>
@@ -268,21 +268,21 @@ const FullHeightStickyContent: React.FC<{ behavior: IStickyBehavior }> = ({
 };
 
 stories.add("Full height", () => {
-  const behavior = selectBehavior("Behavior");
+  const behaviour = selectBehaviour("Behaviour");
 
   return (
     <StickyContainer>
-      <FullHeightStickyContent behavior={behavior} />
+      <FullHeightStickyContent behaviour={behaviour} />
     </StickyContainer>
   );
 });
 
 stories.add("Test SSR", () => {
-  const behavior = selectBehavior("Behavior");
+  const behaviour = selectBehaviour("Behaviour");
 
   return (
     <ScrollContext.Provider value={{ scrollElement: null }}>
-      <FullHeightStickyContent behavior={behavior} />
+      <FullHeightStickyContent behaviour={behaviour} />
     </ScrollContext.Provider>
   );
 });
