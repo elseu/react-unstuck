@@ -19,7 +19,7 @@ interface IGatherEntriesContext {
   entries: IGatherEntry[];
 }
 
-interface IGatherUpdaterContext {
+interface IGatherUpdaterContext extends IGatherEntriesContext {
   update(f: (current: IGatherEntry[]) => IGatherEntry[]): void;
 }
 
