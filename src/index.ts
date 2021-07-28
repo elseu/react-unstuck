@@ -14,4 +14,9 @@ export {
 } from "./behavior";
 export { IStickyBehavior } from "./calc";
 export { ISelectorFunction, ILabels } from "./selectors";
-export { GatherEntriesContext } from "./gather";
+export {
+  GatherUpdaterContext,
+  GatherEntriesContext,
+  useGatheredData,
+  useGatheredElements
+} from "./gather";

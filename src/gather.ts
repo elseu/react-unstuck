@@ -27,7 +27,9 @@ export const GatherEntriesContext = createContext<IGatherEntriesContext>({
   entries: []
 });
 
-const GatherUpdaterContext = createContext<IGatherUpdaterContext | null>(null);
+export const GatherUpdaterContext = createContext<IGatherUpdaterContext | null>(
+  null
+);
 
 let classIndex = 1;
 
