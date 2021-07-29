@@ -46,6 +46,7 @@ interface IViewportStickyLayout {
 export type IProcessedStickyLayout = null | IViewportProcessedStickyLayout;
 
 interface IViewportProcessedStickyLayout {
+  element: HTMLElement;
   scrolling: boolean;
   top: number;
   height: number;
@@ -240,7 +241,7 @@ function processStickyLayout(
   const height = element.offsetHeight;
   const bottom = layout.top + height;
   const z = layout.z ?? -1 * index;
-  return { height, bottom, z, ...layout };
+  return { element, height, bottom, z, ...layout };
 }
 
 function cssifyStickyLayout(

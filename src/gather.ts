@@ -19,14 +19,17 @@ interface IGatherEntriesContext {
   entries: IGatherEntry[];
 }
 
-interface IGatherUpdaterContext {
+interface IGatherUpdaterContext extends IGatherEntriesContext {
   update(f: (current: IGatherEntry[]) => IGatherEntry[]): void;
 }
 
-const GatherEntriesContext = createContext<IGatherEntriesContext>({
+export const GatherEntriesContext = createContext<IGatherEntriesContext>({
   entries: []
 });
-const GatherUpdaterContext = createContext<IGatherUpdaterContext | null>(null);
+
+export const GatherUpdaterContext = createContext<IGatherUpdaterContext | null>(
+  null
+);
 
 let classIndex = 1;
 
@@ -44,12 +47,14 @@ function sortEntries(entries: IGatherEntry[]) {
 
   // Fetch all elements with this class in document order, and put their entries into the array.
   const sortedEntries: IGatherEntry[] = [];
-  Array.prototype.slice.call(document.querySelectorAll(`.${className}`)).forEach(element => {
-    const entry = entries.find(e => e.element === element);
-    if (entry) {
-      sortedEntries.push(entry);
-    }
-  });
+  Array.prototype.slice
+    .call(document.querySelectorAll(`.${className}`))
+    .forEach(element => {
+      const entry = entries.find(e => e.element === element);
+      if (entry) {
+        sortedEntries.push(entry);
+      }
+    });
 
   // Remove the special class.
   elements.forEach(element => {

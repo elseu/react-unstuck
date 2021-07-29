@@ -3,6 +3,7 @@ import {
   CSSProperties,
   FC,
   Fragment,
+  HTMLAttributes,
   memo,
   ReactElement,
   RefObject,
@@ -62,7 +63,7 @@ export const StickyContainer: FC<{}> = ({ children }) => {
   );
 };
 
-export interface IStickyProps {
+export interface IStickyProps extends HTMLAttributes<HTMLDivElement> {
   behavior: IStickyBehavior;
   labels?: ILabels;
   respondsTo?: ISelectorFunction;
@@ -72,7 +73,7 @@ const wrapperStyle = { display: "block", position: "absolute", width: "100%" };
 const placeholderStyle = { display: "block", position: "relative" };
 
 export const Sticky: FC<IStickyProps> = memo(
-  ({ behavior, children, labels, respondsTo }) => {
+  ({ behavior, children, labels, respondsTo, ...attributes }) => {
     const behaviorState = useRef<any>({});
     const placeholderRef = useRef<HTMLElement>();
 
@@ -114,7 +115,8 @@ export const Sticky: FC<IStickyProps> = memo(
         "div",
         {
           ref,
-          style: typeof window !== "undefined" ? wrapperStyle : undefined
+          style: typeof window !== "undefined" ? wrapperStyle : undefined,
+          ...attributes
         },
         children
       ),
