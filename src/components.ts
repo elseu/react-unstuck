@@ -64,6 +64,7 @@ export const StickyContainer: FC<{}> = ({ children }) => {
 };
 
 export interface IStickyProps extends HTMLAttributes<HTMLDivElement> {
+  defaultZIndex?: number;
   behavior: IStickyBehavior;
   labels?: ILabels;
   respondsTo?: ISelectorFunction;
@@ -73,10 +74,16 @@ const wrapperStyle = { display: "block", position: "absolute", width: "100%" };
 const placeholderStyle = { display: "block", position: "relative" };
 
 export const Sticky: FC<IStickyProps> = memo(
-  ({ behavior, children, labels, respondsTo, ...attributes }) => {
+  ({
+    behavior,
+    children,
+    labels,
+    respondsTo,
+    defaultZIndex,
+    ...attributes
+  }) => {
     const behaviorState = useRef<any>({});
     const placeholderRef = useRef<HTMLElement>();
-
     let ref: RefObject<HTMLElement>;
     const handle: IStickyHandle = {
       behavior,
@@ -92,8 +99,13 @@ export const Sticky: FC<IStickyProps> = memo(
         }
         const wrapperCssProps: ICssStyleData = {
           ...wrapperStyle,
-          ...stickyCssProps
+          ...stickyCssProps,
+          ...(!sticky &&
+            defaultZIndex !== undefined && {
+              zIndex: defaultZIndex
+            })
         };
+
         for (const k of Object.keys(wrapperCssProps)) {
           wrapper.style[k as any] = wrapperCssProps[k];
         }
