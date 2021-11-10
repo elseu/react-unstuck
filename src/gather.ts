@@ -61,7 +61,16 @@ function sortEntries(entries: IGatherEntry[]) {
     element.classList.remove(className);
   });
 
-  return sortedEntries;
+  const missingEntries = entries.filter(x => !sortedEntries.includes(x));
+  // tslint:disable-next-line:no-console
+  if (console?.warn && missingEntries.length > 0) {
+    // tslint:disable-next-line:no-console
+    console.warn(
+      "react-unstuck: unable to make sticky order based on dom order, this can be caused by a Portal or animation frameworks, or something else that call the gather updater before it is rendered in dom.",
+      missingEntries
+    );
+  }
+  return [...sortedEntries, ...missingEntries];
 }
 
 export const GatherContainer: FC<{}> = ({ children }) => {
