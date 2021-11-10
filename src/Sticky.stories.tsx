@@ -1,7 +1,6 @@
 import { select } from "@storybook/addon-knobs";
 import { storiesOf } from "@storybook/react";
 import React, { CSSProperties, useCallback, useState } from "react";
-import { Portal } from "react-portal";
 
 import {
   ILabels,
@@ -285,31 +284,5 @@ stories.add("Test SSR", () => {
     <ScrollContext.Provider value={{ scrollElement: null }}>
       <FullHeightStickyContent behavior={behavior} />
     </ScrollContext.Provider>
-  );
-});
-
-stories.add("Test Portal", () => {
-  const behavior1 = selectBehavior("Behavior 1");
-  const behavior2 = selectBehavior("Behavior 2");
-  const behavior3 = selectBehavior("Behavior 3");
-  const behavior4 = selectBehavior("Behavior 4");
-  const behavior5 = selectBehavior("Behavior 5");
-  return (
-    <>
-      <StickyContainer>
-        <div>hasdhfahsdf</div>
-        <Portal>
-          <StickyScrollContainer style={{ height: "100vh" }}>
-            <StickyContent
-              behavior1={behavior1}
-              behavior2={behavior2}
-              behavior3={behavior3}
-              behavior4={behavior4}
-              behavior5={behavior5}
-            />
-          </StickyScrollContainer>
-        </Portal>
-      </StickyContainer>
-    </>
   );
 });
