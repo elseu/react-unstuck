@@ -6,6 +6,7 @@ TODO
 
 - [Installation](#installation)
 - [Overview](#overview)
+- [Compatibility with other libraries](#compatibility-with-other-libraries)
 - [Typescript](#typescript)
 - [Developer](#developer)
 
@@ -16,6 +17,10 @@ TODO
 ## Overview
 
 TODO!
+
+## Compatibility with other libraries
+
+This tool is compatible with most normal React libraries. However, libraries that directly move or delete DOM elements outside of React may cause trouble. This may happen with certain animation frameworks that perform their own DOM manipulation to improve performance. If you see unexpected behavior, turn up the verbosity level of the Web Inspector console and look for debug messages that say `some expected Sticky elements are not present in the DOM`. Unfortunately there is no one-size-fits-all solution.
 
 ## Typescript
 

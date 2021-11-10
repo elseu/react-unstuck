@@ -61,6 +61,13 @@ function sortEntries(entries: IGatherEntry[]) {
     element.classList.remove(className);
   });
 
+  if (entries.length !== sortedEntries.length) {
+    // tslint:disable-next-line:no-console
+    console?.debug(
+      "react-unstuck: some expected Sticky elements are not present in the DOM. This can happen when the DOM is manipulated outside React's rendering, for instance by an animation framework."
+    );
+  }
+
   return sortedEntries;
 }
 
