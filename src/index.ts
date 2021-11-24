@@ -20,3 +20,5 @@ export {
   useGatheredData,
   useGatheredElements
 } from "./gather";
+
+export { useScrollElement } from "./scroll";
