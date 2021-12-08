@@ -93,8 +93,9 @@ function elementRootOffset(
 export function updateStickyLayout(
   stickyHandleElements: Array<IGatheredElement<IStickyHandle>>,
   scrollElement: HTMLElement | Window,
-  respondsToIndexes: number[][]
-): void {
+  respondsToIndexes: number[][],
+  dryRun: boolean = false
+): IProcessedStickyLayout[] {
   const viewport = memoize(() => {
     let scrollTop: number = 0;
     if ("scrollY" in scrollElement) {
@@ -204,8 +205,12 @@ export function updateStickyLayout(
     return processedLayout;
   };
 
+  const resultLayouts: IProcessedStickyLayout[] = [];
+
   stickyHandleElements.forEach((stickyHandleElement, i) => {
     const layout = layoutForIndex(i);
+    resultLayouts[i] = layout;
+
     const placeholder = stickyHandleElement.data.placeholderRef.current;
     const offsetParent = (placeholder
       ? placeholder
@@ -219,15 +224,19 @@ export function updateStickyLayout(
       ? elementRootOffset(placeholder)
       : { top: 0, left: 0 };
     const placeholderWidth = placeholder ? placeholder.offsetWidth : null;
-    const { sticky, cssProps } = cssifyStickyLayout(
-      layout,
-      viewport,
-      parentOffset,
-      placeholderOffset,
-      placeholderWidth
-    );
-    stickyHandleElement.data.update(sticky, cssProps);
+    if (!dryRun) {
+      const { sticky, cssProps } = cssifyStickyLayout(
+        layout,
+        viewport,
+        parentOffset,
+        placeholderOffset,
+        placeholderWidth
+      );
+      stickyHandleElement.data.update(sticky, cssProps);
+    }
   });
+
+  return resultLayouts;
 }
 
 function processStickyLayout(
