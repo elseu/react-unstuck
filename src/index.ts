@@ -4,7 +4,8 @@ export {
   StickyContainer,
   IStickyProps,
   Sticky,
-  useStickyLayoutListener
+  useStickyLayoutListener,
+  useStickyLayoutInfo
 } from "./components";
 export {
   notSticky,
