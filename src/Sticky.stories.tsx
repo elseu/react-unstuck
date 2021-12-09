@@ -1,5 +1,7 @@
-import { select } from "@storybook/addon-knobs";
+import { action } from "@storybook/addon-actions";
+import { boolean, select } from "@storybook/addon-knobs";
 import { storiesOf } from "@storybook/react";
+import { useStickyLayoutListener } from "components";
 import React, { CSSProperties, useCallback, useState } from "react";
 
 import {
@@ -51,6 +53,8 @@ function selectBehavior(label: string, defaultValue: string = "stickToTop") {
   return behaviors[option];
 }
 
+const logLayoutInfoAction = action("Layout info");
+
 interface IStatefulHeaderProps {
   style?: CSSProperties;
 }
@@ -75,6 +79,7 @@ interface IStickyContentProps {
   behavior3: IStickyBehavior;
   behavior4: IStickyBehavior;
   behavior5: IStickyBehavior;
+  logLayoutInfo: boolean;
 }
 
 function fullWidth({ labels }: { labels: ILabels }) {
@@ -86,8 +91,17 @@ const StickyContent: React.FC<IStickyContentProps> = ({
   behavior2,
   behavior3,
   behavior4,
-  behavior5
+  behavior5,
+  logLayoutInfo
 }) => {
+  useStickyLayoutListener(
+    ({ getStickyLayoutInfo }) => {
+      if (logLayoutInfo) {
+        logLayoutInfoAction(getStickyLayoutInfo());
+      }
+    },
+    [logLayoutInfo]
+  );
   return (
     <>
       <h1 style={stickyStyle1}>Nonsticky</h1>
@@ -182,6 +196,7 @@ stories.add("In overflow container", () => {
   const behavior3 = selectBehavior("Behavior 3");
   const behavior4 = selectBehavior("Behavior 4");
   const behavior5 = selectBehavior("Behavior 5");
+  const logLayoutInfo = boolean("Log layout info with listener", false);
 
   return (
     <div style={{ paddingTop: "50px" }}>
@@ -197,6 +212,7 @@ stories.add("In overflow container", () => {
           behavior3={behavior3}
           behavior4={behavior4}
           behavior5={behavior5}
+          logLayoutInfo={logLayoutInfo}
         />
       </StickyScrollContainer>
     </div>
@@ -209,6 +225,7 @@ stories.add("In window", () => {
   const behavior3 = selectBehavior("Behavior 3");
   const behavior4 = selectBehavior("Behavior 4");
   const behavior5 = selectBehavior("Behavior 5");
+  const logLayoutInfo = boolean("Log layout info with listener", false);
 
   return (
     <StickyContainer>
@@ -218,6 +235,7 @@ stories.add("In window", () => {
         behavior3={behavior3}
         behavior4={behavior4}
         behavior5={behavior5}
+        logLayoutInfo={logLayoutInfo}
       />
     </StickyContainer>
   );
@@ -229,9 +247,18 @@ const fullHeightStyle = {
   height: "100%"
 };
 
-const FullHeightStickyContent: React.FC<{ behavior: IStickyBehavior }> = ({
-  behavior
-}) => {
+const FullHeightStickyContent: React.FC<{
+  behavior: IStickyBehavior;
+  logLayoutInfo: boolean;
+}> = ({ behavior, logLayoutInfo }) => {
+  useStickyLayoutListener(
+    ({ getStickyLayoutInfo }) => {
+      if (logLayoutInfo) {
+        logLayoutInfoAction(getStickyLayoutInfo());
+      }
+    },
+    [logLayoutInfo]
+  );
   return (
     <>
       {[...Array(20)]
@@ -269,20 +296,28 @@ const FullHeightStickyContent: React.FC<{ behavior: IStickyBehavior }> = ({
 
 stories.add("Full height", () => {
   const behavior = selectBehavior("Behavior");
+  const logLayoutInfo = boolean("Log layout info with listener", false);
 
   return (
     <StickyContainer>
-      <FullHeightStickyContent behavior={behavior} />
+      <FullHeightStickyContent
+        behavior={behavior}
+        logLayoutInfo={logLayoutInfo}
+      />
     </StickyContainer>
   );
 });
 
 stories.add("Test SSR", () => {
   const behavior = selectBehavior("Behavior");
+  const logLayoutInfo = boolean("Log layout info with listener", false);
 
   return (
     <ScrollContext.Provider value={{ scrollElement: null }}>
-      <FullHeightStickyContent behavior={behavior} />
+      <FullHeightStickyContent
+        behavior={behavior}
+        logLayoutInfo={logLayoutInfo}
+      />
     </ScrollContext.Provider>
   );
 });

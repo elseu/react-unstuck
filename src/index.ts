@@ -3,7 +3,8 @@ export {
   StickyScrollContainer,
   StickyContainer,
   IStickyProps,
-  Sticky
+  Sticky,
+  useStickyLayoutListener
 } from "./components";
 export {
   notSticky,

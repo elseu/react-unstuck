@@ -1,4 +1,5 @@
 import {
+  createContext,
   createElement,
   CSSProperties,
   FC,
@@ -8,6 +9,7 @@ import {
   ReactElement,
   RefObject,
   useCallback,
+  useContext,
   useEffect,
   useMemo,
   useRef
@@ -158,12 +160,35 @@ function calculateRespondsTo(
   });
 }
 
-interface IStickyLayoutContext {}
+interface IStickyLayoutInfo {
+  hasStickyLayout: boolean;
+  bottom: number;
+}
+
+interface IStickyLayoutUpdateEvent {
+  getStickyLayoutInfo(selector?: ISelectorFunction): IStickyLayoutInfo;
+}
+
+interface IStickyLayoutContext {
+  listeners: Array<(event: IStickyLayoutUpdateEvent) => void>;
+}
 
 const StickyLayoutContext = createContext<IStickyLayoutContext | null>(null);
 
+function useStickyLayoutContext(): IStickyLayoutContext {
+  const stickyLayoutContext = useContext(StickyLayoutContext);
+  if (stickyLayoutContext === null) {
+    throw new Error(
+      "You should only use sticky-related hooks inside a StickyContainer or StickyScrollContainer"
+    );
+  }
+  return stickyLayoutContext;
+}
+
 const StickyLayoutContainer: FC<{}> = ({ children }) => {
-  const stickyLayoutContextRef = useRef({} as IStickyLayoutContext);
+  const stickyLayoutContextRef = useRef({
+    listeners: []
+  } as IStickyLayoutContext);
   return createElement(
     StickyLayoutContext.Provider,
     { value: stickyLayoutContextRef.current },
@@ -173,6 +198,8 @@ const StickyLayoutContainer: FC<{}> = ({ children }) => {
 
 // A container that lays out sticky components and makes sure they are updated properly.
 const StickyLayoutInnerContainer: FC<{}> = ({ children }) => {
+  const stickyLayoutContext = useStickyLayoutContext();
+
   const stickyHandleElements = useGatheredElements(isStickyHandle);
   const respondsToIndexes = useMemo(
     () => calculateRespondsTo(stickyHandleElements),
@@ -184,14 +211,40 @@ const StickyLayoutInnerContainer: FC<{}> = ({ children }) => {
   const updateLayout = useCallback(
     (eventScrollElement: HTMLElement | Window) => {
       requestAnimationFrame(() => {
-        updateStickyLayout(
+        const stickyLayouts = updateStickyLayout(
           stickyHandleElements,
           eventScrollElement,
           respondsToIndexes
         );
+        const event: IStickyLayoutUpdateEvent = {
+          getStickyLayoutInfo(selector) {
+            let hasStickyLayout = false;
+            let bottom = 0;
+            for (let i = 0; i < stickyLayouts.length; i++) {
+              const stickyLayout = stickyLayouts[i];
+              if (stickyLayout === null) {
+                continue;
+              }
+              if (selector) {
+                const labels = stickyHandleElements[i].data.labels ?? {};
+                if (!selector({ labels })) {
+                  continue;
+                }
+              }
+              hasStickyLayout = true;
+              bottom = stickyLayout.bottom;
+            }
+
+            return {
+              hasStickyLayout,
+              bottom
+            };
+          }
+        };
+        stickyLayoutContext.listeners.forEach(l => l(event));
       });
     },
-    [stickyHandleElements, respondsToIndexes]
+    [stickyHandleElements, respondsToIndexes, stickyLayoutContext]
   );
 
   const updateLayoutBound = useCallback(() => {
@@ -229,3 +282,25 @@ const StickyLayoutInnerContainer: FC<{}> = ({ children }) => {
 
   return createElement(Fragment, {}, children);
 };
+export function useStickyLayoutListener(
+  listener: (event: IStickyLayoutUpdateEvent) => void,
+  deps: any[]
+): void {
+  const stickyLayoutContext = useStickyLayoutContext();
+  const listenerRef = useRef(listener);
+  useEffect(
+    () => {
+      // Add the listener.
+      listenerRef.current = listener;
+      stickyLayoutContext.listeners.push(listener);
+      return () => {
+        // Remove the listener.
+        stickyLayoutContext.listeners = stickyLayoutContext.listeners.filter(
+          l => l !== listenerRef.current
+        );
+      };
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    deps
+  );
+}
