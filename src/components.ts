@@ -179,16 +179,6 @@ interface IStickyLayoutContext {
 
 const StickyLayoutContext = createContext<IStickyLayoutContext | null>(null);
 
-function useStickyLayoutContext(): IStickyLayoutContext {
-  const stickyLayoutContext = useContext(StickyLayoutContext);
-  if (stickyLayoutContext === null) {
-    throw new Error(
-      "You should only use sticky-related hooks inside a StickyContainer or StickyScrollContainer"
-    );
-  }
-  return stickyLayoutContext;
-}
-
 const StickyLayoutContainer: FC<{}> = ({ children }) => {
   const stickyLayoutContextRef = useRef({
     listeners: [],
@@ -233,7 +223,7 @@ function getStickyLayoutInfo(
 
 // A container that lays out sticky components and makes sure they are updated properly.
 const StickyLayoutInnerContainer: FC<{}> = ({ children }) => {
-  const stickyLayoutContext = useStickyLayoutContext();
+  const stickyLayoutContext = useContext(StickyLayoutContext);
 
   const stickyHandleElements = useGatheredElements(isStickyHandle);
   const respondsToIndexes = useMemo(
@@ -245,7 +235,7 @@ const StickyLayoutInnerContainer: FC<{}> = ({ children }) => {
 
   const stickyLayoutsRef = useRef<IProcessedStickyLayout[]>([]);
 
-  stickyLayoutContext.getStickyLayoutInfo = useCallback(
+  const getStickyLayoutInfoCallback = useCallback(
     (selector: ISelectorFunction) =>
       getStickyLayoutInfo(
         stickyLayoutsRef.current,
@@ -255,7 +245,7 @@ const StickyLayoutInnerContainer: FC<{}> = ({ children }) => {
     [stickyHandleElements, stickyLayoutsRef]
   );
 
-  stickyLayoutContext.getStickyOffsetForY = useCallback(
+  const getStickyOffsetForYCallback = useCallback(
     (y: number, selector?: ISelectorFunction) => {
       if (scrollElement === null) {
         return 0;
@@ -280,6 +270,11 @@ const StickyLayoutInnerContainer: FC<{}> = ({ children }) => {
     [respondsToIndexes, scrollElement, stickyHandleElements]
   );
 
+  if (stickyLayoutContext) {
+    stickyLayoutContext.getStickyLayoutInfo = getStickyLayoutInfoCallback;
+    stickyLayoutContext.getStickyOffsetForY = getStickyOffsetForYCallback;
+  }
+
   const updateLayout = useCallback(
     (eventScrollElement: HTMLElement | Window) => {
       requestAnimationFrame(() => {
@@ -288,12 +283,14 @@ const StickyLayoutInnerContainer: FC<{}> = ({ children }) => {
           eventScrollElement,
           respondsToIndexes
         );
-        const { listeners } = stickyLayoutContext;
-        if (listeners.length > 0) {
-          const event: IStickyLayoutUpdateEvent = {
-            getStickyLayoutInfo: stickyLayoutContext.getStickyLayoutInfo
-          };
-          listeners.forEach(l => l(event));
+        if (stickyLayoutContext) {
+          const { listeners } = stickyLayoutContext;
+          if (listeners.length > 0) {
+            const event: IStickyLayoutUpdateEvent = {
+              getStickyLayoutInfo: stickyLayoutContext.getStickyLayoutInfo
+            };
+            listeners.forEach(l => l(event));
+          }
         }
       });
     },
@@ -339,12 +336,15 @@ export function useStickyLayoutListener(
   listener: (event: IStickyLayoutUpdateEvent) => void,
   deps: any[]
 ): void {
-  const stickyLayoutContext = useStickyLayoutContext();
+  const stickyLayoutContext = useContext(StickyLayoutContext);
   const listenerRef = useRef(listener);
   useEffect(
     () => {
       // Add the listener.
       listenerRef.current = listener;
+      if (!stickyLayoutContext) {
+        return;
+      }
       stickyLayoutContext.listeners.push(listener);
       return () => {
         // Remove the listener.
@@ -360,9 +360,12 @@ export function useStickyLayoutListener(
 
 // A hook that lets us fetch the current sticky layout info.
 export function useStickyLayoutInfo(): () => IStickyLayoutInfo {
-  const context = useStickyLayoutContext();
+  const context = useContext(StickyLayoutContext);
   return (selector?: ISelectorFunction) =>
-    context.getStickyLayoutInfo(selector);
+    context?.getStickyLayoutInfo(selector) ?? {
+      hasStickyLayout: false,
+      bottom: 0
+    };
 }
 interface IStickyOffsetCalculator {
   offsetForY(y: number, selector?: ISelectorFunction): number;
@@ -376,18 +379,18 @@ interface IStickyOffsetCalculator {
 
 // A hook that lets us calculate the proper y position to scroll to that takes sticky elements into account.
 export function useStickyOffsetCalculator(): IStickyOffsetCalculator {
-  const context = useStickyLayoutContext();
+  const context = useContext(StickyLayoutContext);
   const scrollElement = useScrollElement();
 
   return {
     offsetForY(y: number, selector?: ISelectorFunction) {
-      return context.getStickyOffsetForY(y, selector);
+      return context?.getStickyOffsetForY(y, selector) ?? 0;
     },
     offsetForElement(
       element: HTMLElement,
       selector?: ISelectorFunction
     ): number {
-      if (scrollElement === null) {
+      if (scrollElement === null || context === null) {
         return 0;
       }
       // First calculate the scrollTop if the element was not sticky.
@@ -400,13 +403,13 @@ export function useStickyOffsetCalculator(): IStickyOffsetCalculator {
       return context.getStickyOffsetForY(naiveScrollTop, selector);
     },
     scrollTopForY(y: number, selector?: ISelectorFunction): number {
-      return y - context.getStickyOffsetForY(y, selector);
+      return y - (context?.getStickyOffsetForY(y, selector) ?? 0);
     },
     scrollTopForElement(
       element: HTMLElement,
       selector?: ISelectorFunction
     ): number {
-      if (scrollElement === null) {
+      if (scrollElement === null || context === null) {
         return 0;
       }
       // First calculate the scrollTop if the element was not sticky.
