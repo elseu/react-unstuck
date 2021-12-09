@@ -5,7 +5,8 @@ export {
   IStickyProps,
   Sticky,
   useStickyLayoutListener,
-  useStickyLayoutInfo
+  useStickyLayoutInfo,
+  useStickyOffsetCalculator
 } from "./components";
 export {
   notSticky,

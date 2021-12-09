@@ -76,7 +76,7 @@ function memoize<T>(f: () => T): () => T {
   };
 }
 
-function elementRootOffset(
+export function elementRootOffset(
   element: HTMLElement
 ): { top: number; left: number } {
   let top = 0;
@@ -90,15 +90,28 @@ function elementRootOffset(
   return { top, left };
 }
 
+export interface IStickyLayoutUpdateOptions {
+  dryRun?: boolean;
+  scrollTop?: number;
+}
+
 export function updateStickyLayout(
   stickyHandleElements: Array<IGatheredElement<IStickyHandle>>,
   scrollElement: HTMLElement | Window,
   respondsToIndexes: number[][],
-  dryRun: boolean = false
+  options?: IStickyLayoutUpdateOptions
 ): IProcessedStickyLayout[] {
+  const { dryRun, scrollTop: scrollTopInput } = {
+    dryRun: false,
+    ...options
+  };
+
   const viewport = memoize(() => {
     let scrollTop: number = 0;
-    if ("scrollY" in scrollElement) {
+    if (dryRun && scrollTopInput !== undefined) {
+      // Calculate the outcomes for a different scrollTop.
+      scrollTop = scrollTopInput;
+    } else if ("scrollY" in scrollElement) {
       scrollTop = scrollElement.scrollY;
     } else if ("scrollTop" in scrollElement) {
       scrollTop = scrollElement.scrollTop;

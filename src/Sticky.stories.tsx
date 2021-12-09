@@ -1,8 +1,7 @@
 import { action } from "@storybook/addon-actions";
 import { boolean, select } from "@storybook/addon-knobs";
 import { storiesOf } from "@storybook/react";
-import { useStickyLayoutListener } from "components";
-import React, { CSSProperties, useCallback, useState } from "react";
+import React, { CSSProperties, useCallback, useRef, useState } from "react";
 
 import {
   ILabels,
@@ -14,9 +13,11 @@ import {
   stickToTopFullHeight,
   Sticky,
   StickyContainer,
-  StickyScrollContainer
+  StickyScrollContainer,
+  useStickyLayoutListener,
+  useStickyOffsetCalculator
 } from "./index";
-import { ScrollContext } from "./scroll";
+import { ScrollContext, useScrollElement } from "./scroll";
 
 /* tslint:disable:no-console */
 
@@ -94,6 +95,24 @@ const StickyContent: React.FC<IStickyContentProps> = ({
   behavior5,
   logLayoutInfo
 }) => {
+  const firstScrollTargetRef = useRef(null);
+  const secondScrollTargetRef = useRef(null);
+
+  const { scrollTopForElement } = useStickyOffsetCalculator();
+
+  const scrollElement = useScrollElement();
+
+  // Demo the sticky offset calculator.
+  const scrollToElement = useCallback(
+    (element: HTMLElement | null) => {
+      if (element === null || scrollElement === null) {
+        return;
+      }
+      scrollElement?.scrollTo(0, scrollTopForElement(element));
+    },
+    [scrollElement, scrollTopForElement]
+  );
+
   useStickyLayoutListener(
     ({ getStickyLayoutInfo }) => {
       if (logLayoutInfo) {
@@ -108,6 +127,12 @@ const StickyContent: React.FC<IStickyContentProps> = ({
   return (
     <>
       <h1 style={stickyStyle1}>Nonsticky</h1>
+      <button onClick={() => scrollToElement(firstScrollTargetRef.current)}>
+        Scroll to first
+      </button>
+      <button onClick={() => scrollToElement(secondScrollTargetRef.current)}>
+        Scroll to second
+      </button>
       {[...Array(10)]
         .map((_, i) => i)
         .map(i => (
@@ -124,8 +149,14 @@ const StickyContent: React.FC<IStickyContentProps> = ({
       <Sticky behavior={behavior2} labels={{ fullWidth: true }}>
         <h1 style={stickyStyle2}>Second</h1>
       </Sticky>
-      {[...Array(20)]
+      {[...Array(10)]
         .map((_, i) => i)
+        .map(i => (
+          <p key={`second-${i}`}>{`second-${i}`}</p>
+        ))}
+      <p ref={firstScrollTargetRef}>First scroll target</p>
+      {[...Array(10)]
+        .map((_, i) => i + 10)
         .map(i => (
           <p key={`second-${i}`}>{`second-${i}`}</p>
         ))}
@@ -159,8 +190,14 @@ const StickyContent: React.FC<IStickyContentProps> = ({
           <Sticky behavior={behavior4} respondsTo={fullWidth}>
             <h1 style={stickyStyle4}>Fourth</h1>
           </Sticky>
-          {[...Array(20)]
+          {[...Array(10)]
             .map((_, i) => i)
+            .map(i => (
+              <p key={`fourth-${i}`}>{`fourth-${i}`}</p>
+            ))}
+          <p ref={secondScrollTargetRef}>Second scroll target</p>
+          {[...Array(10)]
+            .map((_, i) => i + 10)
             .map(i => (
               <p key={`fourth-${i}`}>{`fourth-${i}`}</p>
             ))}
