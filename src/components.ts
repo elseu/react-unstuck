@@ -158,8 +158,21 @@ function calculateRespondsTo(
   });
 }
 
-// A container that lays out sticky components and makes sure they are updated properly.
+interface IStickyLayoutContext {}
+
+const StickyLayoutContext = createContext<IStickyLayoutContext | null>(null);
+
 const StickyLayoutContainer: FC<{}> = ({ children }) => {
+  const stickyLayoutContextRef = useRef({} as IStickyLayoutContext);
+  return createElement(
+    StickyLayoutContext.Provider,
+    { value: stickyLayoutContextRef.current },
+    createElement(StickyLayoutInnerContainer, {}, children)
+  );
+};
+
+// A container that lays out sticky components and makes sure they are updated properly.
+const StickyLayoutInnerContainer: FC<{}> = ({ children }) => {
   const stickyHandleElements = useGatheredElements(isStickyHandle);
   const respondsToIndexes = useMemo(
     () => calculateRespondsTo(stickyHandleElements),
