@@ -16,6 +16,7 @@ import {
 } from "react";
 import {
   ICssStyleData,
+  IProcessedStickyLayout,
   IStickyBehavior,
   IStickyHandle,
   updateStickyLayout
@@ -171,6 +172,7 @@ interface IStickyLayoutUpdateEvent {
 
 interface IStickyLayoutContext {
   listeners: Array<(event: IStickyLayoutUpdateEvent) => void>;
+  getStickyLayoutInfo(selector?: ISelectorFunction): IStickyLayoutInfo;
 }
 
 const StickyLayoutContext = createContext<IStickyLayoutContext | null>(null);
@@ -187,7 +189,8 @@ function useStickyLayoutContext(): IStickyLayoutContext {
 
 const StickyLayoutContainer: FC<{}> = ({ children }) => {
   const stickyLayoutContextRef = useRef({
-    listeners: []
+    listeners: [],
+    getStickyLayoutInfo: () => ({ hasStickyLayout: false, bottom: 0 })
   } as IStickyLayoutContext);
   return createElement(
     StickyLayoutContext.Provider,
@@ -208,40 +211,51 @@ const StickyLayoutInnerContainer: FC<{}> = ({ children }) => {
 
   const scrollElement = useScrollElement();
 
+  const stickyLayoutsRef = useRef<IProcessedStickyLayout[]>([]);
+
+  stickyLayoutContext.getStickyLayoutInfo = useCallback(
+    (selector: ISelectorFunction) => {
+      const stickyLayouts = stickyLayoutsRef.current;
+      let hasStickyLayout = false;
+      let bottom = 0;
+      for (let i = 0; i < stickyLayouts.length; i++) {
+        const stickyLayout = stickyLayouts[i];
+        if (stickyLayout === null) {
+          continue;
+        }
+        if (selector) {
+          const labels = stickyHandleElements[i].data.labels ?? {};
+          if (!selector({ labels })) {
+            continue;
+          }
+        }
+        hasStickyLayout = true;
+        bottom = stickyLayout.bottom;
+      }
+
+      return {
+        hasStickyLayout,
+        bottom
+      };
+    },
+    [stickyHandleElements, stickyLayoutsRef]
+  );
+
   const updateLayout = useCallback(
     (eventScrollElement: HTMLElement | Window) => {
       requestAnimationFrame(() => {
-        const stickyLayouts = updateStickyLayout(
+        stickyLayoutsRef.current = updateStickyLayout(
           stickyHandleElements,
           eventScrollElement,
           respondsToIndexes
         );
-        const event: IStickyLayoutUpdateEvent = {
-          getStickyLayoutInfo(selector) {
-            let hasStickyLayout = false;
-            let bottom = 0;
-            for (let i = 0; i < stickyLayouts.length; i++) {
-              const stickyLayout = stickyLayouts[i];
-              if (stickyLayout === null) {
-                continue;
-              }
-              if (selector) {
-                const labels = stickyHandleElements[i].data.labels ?? {};
-                if (!selector({ labels })) {
-                  continue;
-                }
-              }
-              hasStickyLayout = true;
-              bottom = stickyLayout.bottom;
-            }
-
-            return {
-              hasStickyLayout,
-              bottom
-            };
-          }
-        };
-        stickyLayoutContext.listeners.forEach(l => l(event));
+        const { listeners } = stickyLayoutContext;
+        if (listeners.length > 0) {
+          const event: IStickyLayoutUpdateEvent = {
+            getStickyLayoutInfo: stickyLayoutContext.getStickyLayoutInfo
+          };
+          listeners.forEach(l => l(event));
+        }
       });
     },
     [stickyHandleElements, respondsToIndexes, stickyLayoutContext]
@@ -303,4 +317,9 @@ export function useStickyLayoutListener(
     // eslint-disable-next-line react-hooks/exhaustive-deps
     deps
   );
+}
+
+// A hook that lets us fetch the current sticky layout info.
+export function useStickyLayoutInfo(): () => IStickyLayoutInfo {
+  return useStickyLayoutContext().getStickyLayoutInfo;
 }
