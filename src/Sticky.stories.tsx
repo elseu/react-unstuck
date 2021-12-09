@@ -97,7 +97,10 @@ const StickyContent: React.FC<IStickyContentProps> = ({
   useStickyLayoutListener(
     ({ getStickyLayoutInfo }) => {
       if (logLayoutInfo) {
-        logLayoutInfoAction(getStickyLayoutInfo());
+        logLayoutInfoAction({
+          all: getStickyLayoutInfo(),
+          fullWidth: getStickyLayoutInfo(fullWidth)
+        });
       }
     },
     [logLayoutInfo]
@@ -110,7 +113,7 @@ const StickyContent: React.FC<IStickyContentProps> = ({
         .map(i => (
           <p key={`bla-${i}`}>{`bla-${i}`}</p>
         ))}
-      <Sticky behavior={behavior1}>
+      <Sticky behavior={behavior1} labels={{ fullWidth: true }}>
         <StatefulHeader style={stickyStyle1}>First</StatefulHeader>
       </Sticky>
       {[...Array(10)]
@@ -118,7 +121,7 @@ const StickyContent: React.FC<IStickyContentProps> = ({
         .map(i => (
           <p key={`first-${i}`}>{`first-${i}`}</p>
         ))}
-      <Sticky behavior={behavior2}>
+      <Sticky behavior={behavior2} labels={{ fullWidth: true }}>
         <h1 style={stickyStyle2}>Second</h1>
       </Sticky>
       {[...Array(20)]
