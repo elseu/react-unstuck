@@ -246,10 +246,13 @@ const StickyLayoutInnerContainer: FC<{}> = ({ children }) => {
   );
 
   const getStickyOffsetForYCallback = useCallback(
-    (y: number, selector?: ISelectorFunction) => {
+    (y: number, selector?: ISelectorFunction): number => {
       if (scrollElement === null) {
         return 0;
       }
+
+      const scrollElementOffset =
+        "nodeType" in scrollElement ? elementRootOffset(scrollElement).top : 0;
 
       const offsetStickyLayout = updateStickyLayout(
         stickyHandleElements,
@@ -265,7 +268,23 @@ const StickyLayoutInnerContainer: FC<{}> = ({ children }) => {
         stickyHandleElements,
         selector
       );
-      return layoutInfo.bottom;
+      const offset = layoutInfo.bottom;
+      if (offset <= 0) {
+        return offset;
+      }
+      for (const stickyLayout of offsetStickyLayout) {
+        if (stickyLayout === null) {
+          continue;
+        }
+        const stickyElementOffset = elementRootOffset(stickyLayout.element).top;
+        const stickyElementY = stickyElementOffset - scrollElementOffset;
+        if (stickyElementY <= y && stickyElementY > y - stickyLayout.height) {
+          // The scroll target is inside a sticky element.
+          // Scroll to the top of that sticky element.
+          return offset - (y - stickyElementY);
+        }
+      }
+      return offset;
     },
     [respondsToIndexes, scrollElement, stickyHandleElements]
   );

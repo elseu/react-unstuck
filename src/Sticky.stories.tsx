@@ -147,14 +147,18 @@ const StickyContent: React.FC<IStickyContentProps> = ({
           <p key={`first-${i}`}>{`first-${i}`}</p>
         ))}
       <Sticky behavior={behavior2} labels={{ fullWidth: true }}>
-        <h1 style={stickyStyle2}>Second</h1>
+        <h1 style={stickyStyle2}>
+          Second
+          <br />
+          <span ref={firstScrollTargetRef}>First scroll target</span>
+        </h1>
       </Sticky>
       {[...Array(10)]
         .map((_, i) => i)
         .map(i => (
           <p key={`second-${i}`}>{`second-${i}`}</p>
         ))}
-      <p ref={firstScrollTargetRef}>First scroll target</p>
+      <p>First scroll target</p>
       {[...Array(10)]
         .map((_, i) => i + 10)
         .map(i => (
