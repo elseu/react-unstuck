@@ -272,7 +272,14 @@ const StickyLayoutInnerContainer: FC<{}> = ({ children }) => {
       if (offset <= 0) {
         return offset;
       }
-      for (const stickyLayout of offsetStickyLayout) {
+      for (let i = 0; i < offsetStickyLayout.length; i++) {
+        const stickyLayout = offsetStickyLayout[i];
+        if (
+          selector &&
+          !selector({ labels: stickyHandleElements[i].data.labels ?? {} })
+        ) {
+          continue;
+        }
         if (stickyLayout === null) {
           continue;
         }
