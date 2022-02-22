@@ -1,6 +1,7 @@
-import { select } from "@storybook/addon-knobs";
+import { action } from "@storybook/addon-actions";
+import { boolean, select } from "@storybook/addon-knobs";
 import { storiesOf } from "@storybook/react";
-import React, { CSSProperties, useCallback, useState } from "react";
+import React, { CSSProperties, useCallback, useRef, useState } from "react";
 
 import {
   ILabels,
@@ -12,9 +13,11 @@ import {
   stickToTopFullHeight,
   Sticky,
   StickyContainer,
-  StickyScrollContainer
+  StickyScrollContainer,
+  useStickyLayoutListener,
+  useStickyOffsetCalculator
 } from "./index";
-import { ScrollContext } from "./scroll";
+import { ScrollContext, useScrollElement } from "./scroll";
 
 /* tslint:disable:no-console */
 
@@ -51,6 +54,8 @@ function selectBehavior(label: string, defaultValue: string = "stickToTop") {
   return behaviors[option];
 }
 
+const logLayoutInfoAction = action("Layout info");
+
 interface IStatefulHeaderProps {
   style?: CSSProperties;
 }
@@ -75,6 +80,7 @@ interface IStickyContentProps {
   behavior3: IStickyBehavior;
   behavior4: IStickyBehavior;
   behavior5: IStickyBehavior;
+  logLayoutInfo: boolean;
 }
 
 function fullWidth({ labels }: { labels: ILabels }) {
@@ -86,17 +92,53 @@ const StickyContent: React.FC<IStickyContentProps> = ({
   behavior2,
   behavior3,
   behavior4,
-  behavior5
+  behavior5,
+  logLayoutInfo
 }) => {
+  const firstScrollTargetRef = useRef(null);
+  const secondScrollTargetRef = useRef(null);
+
+  const { scrollTopForElement } = useStickyOffsetCalculator();
+
+  const scrollElement = useScrollElement();
+
+  // Demo the sticky offset calculator.
+  const scrollToElement = useCallback(
+    (element: HTMLElement | null) => {
+      if (element === null || scrollElement === null) {
+        return;
+      }
+      scrollElement?.scrollTo(0, scrollTopForElement(element));
+    },
+    [scrollElement, scrollTopForElement]
+  );
+
+  useStickyLayoutListener(
+    ({ getStickyLayoutInfo }) => {
+      if (logLayoutInfo) {
+        logLayoutInfoAction({
+          all: getStickyLayoutInfo(),
+          fullWidth: getStickyLayoutInfo(fullWidth)
+        });
+      }
+    },
+    [logLayoutInfo]
+  );
   return (
     <>
       <h1 style={stickyStyle1}>Nonsticky</h1>
+      <button onClick={() => scrollToElement(firstScrollTargetRef.current)}>
+        Scroll to first
+      </button>
+      <button onClick={() => scrollToElement(secondScrollTargetRef.current)}>
+        Scroll to second
+      </button>
       {[...Array(10)]
         .map((_, i) => i)
         .map(i => (
           <p key={`bla-${i}`}>{`bla-${i}`}</p>
         ))}
-      <Sticky behavior={behavior1}>
+      <Sticky behavior={behavior1} labels={{ fullWidth: true }}>
         <StatefulHeader style={stickyStyle1}>First</StatefulHeader>
       </Sticky>
       {[...Array(10)]
@@ -104,11 +146,21 @@ const StickyContent: React.FC<IStickyContentProps> = ({
         .map(i => (
           <p key={`first-${i}`}>{`first-${i}`}</p>
         ))}
-      <Sticky behavior={behavior2}>
-        <h1 style={stickyStyle2}>Second</h1>
+      <Sticky behavior={behavior2} labels={{ fullWidth: true }}>
+        <h1 style={stickyStyle2}>
+          Second
+          <br />
+          <span ref={firstScrollTargetRef}>First scroll target</span>
+        </h1>
       </Sticky>
-      {[...Array(20)]
+      {[...Array(10)]
         .map((_, i) => i)
+        .map(i => (
+          <p key={`second-${i}`}>{`second-${i}`}</p>
+        ))}
+      <p>First scroll target</p>
+      {[...Array(10)]
+        .map((_, i) => i + 10)
         .map(i => (
           <p key={`second-${i}`}>{`second-${i}`}</p>
         ))}
@@ -142,8 +194,14 @@ const StickyContent: React.FC<IStickyContentProps> = ({
           <Sticky behavior={behavior4} respondsTo={fullWidth}>
             <h1 style={stickyStyle4}>Fourth</h1>
           </Sticky>
-          {[...Array(20)]
+          {[...Array(10)]
             .map((_, i) => i)
+            .map(i => (
+              <p key={`fourth-${i}`}>{`fourth-${i}`}</p>
+            ))}
+          <p ref={secondScrollTargetRef}>Second scroll target</p>
+          {[...Array(10)]
+            .map((_, i) => i + 10)
             .map(i => (
               <p key={`fourth-${i}`}>{`fourth-${i}`}</p>
             ))}
@@ -182,6 +240,7 @@ stories.add("In overflow container", () => {
   const behavior3 = selectBehavior("Behavior 3");
   const behavior4 = selectBehavior("Behavior 4");
   const behavior5 = selectBehavior("Behavior 5");
+  const logLayoutInfo = boolean("Log layout info with listener", false);
 
   return (
     <div style={{ paddingTop: "50px" }}>
@@ -197,6 +256,7 @@ stories.add("In overflow container", () => {
           behavior3={behavior3}
           behavior4={behavior4}
           behavior5={behavior5}
+          logLayoutInfo={logLayoutInfo}
         />
       </StickyScrollContainer>
     </div>
@@ -209,6 +269,7 @@ stories.add("In window", () => {
   const behavior3 = selectBehavior("Behavior 3");
   const behavior4 = selectBehavior("Behavior 4");
   const behavior5 = selectBehavior("Behavior 5");
+  const logLayoutInfo = boolean("Log layout info with listener", false);
 
   return (
     <StickyContainer>
@@ -218,6 +279,7 @@ stories.add("In window", () => {
         behavior3={behavior3}
         behavior4={behavior4}
         behavior5={behavior5}
+        logLayoutInfo={logLayoutInfo}
       />
     </StickyContainer>
   );
@@ -229,9 +291,18 @@ const fullHeightStyle = {
   height: "100%"
 };
 
-const FullHeightStickyContent: React.FC<{ behavior: IStickyBehavior }> = ({
-  behavior
-}) => {
+const FullHeightStickyContent: React.FC<{
+  behavior: IStickyBehavior;
+  logLayoutInfo: boolean;
+}> = ({ behavior, logLayoutInfo }) => {
+  useStickyLayoutListener(
+    ({ getStickyLayoutInfo }) => {
+      if (logLayoutInfo) {
+        logLayoutInfoAction(getStickyLayoutInfo());
+      }
+    },
+    [logLayoutInfo]
+  );
   return (
     <>
       {[...Array(20)]
@@ -269,20 +340,28 @@ const FullHeightStickyContent: React.FC<{ behavior: IStickyBehavior }> = ({
 
 stories.add("Full height", () => {
   const behavior = selectBehavior("Behavior");
+  const logLayoutInfo = boolean("Log layout info with listener", false);
 
   return (
     <StickyContainer>
-      <FullHeightStickyContent behavior={behavior} />
+      <FullHeightStickyContent
+        behavior={behavior}
+        logLayoutInfo={logLayoutInfo}
+      />
     </StickyContainer>
   );
 });
 
 stories.add("Test SSR", () => {
   const behavior = selectBehavior("Behavior");
+  const logLayoutInfo = boolean("Log layout info with listener", false);
 
   return (
     <ScrollContext.Provider value={{ scrollElement: null }}>
-      <FullHeightStickyContent behavior={behavior} />
+      <FullHeightStickyContent
+        behavior={behavior}
+        logLayoutInfo={logLayoutInfo}
+      />
     </ScrollContext.Provider>
   );
 });

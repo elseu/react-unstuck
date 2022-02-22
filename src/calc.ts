@@ -76,7 +76,7 @@ function memoize<T>(f: () => T): () => T {
   };
 }
 
-function elementRootOffset(
+export function elementRootOffset(
   element: HTMLElement
 ): { top: number; left: number } {
   let top = 0;
@@ -90,14 +90,28 @@ function elementRootOffset(
   return { top, left };
 }
 
+export interface IStickyLayoutUpdateOptions {
+  dryRun?: boolean;
+  scrollTop?: number;
+}
+
 export function updateStickyLayout(
   stickyHandleElements: Array<IGatheredElement<IStickyHandle>>,
   scrollElement: HTMLElement | Window,
-  respondsToIndexes: number[][]
-): void {
+  respondsToIndexes: number[][],
+  options?: IStickyLayoutUpdateOptions
+): IProcessedStickyLayout[] {
+  const { dryRun, scrollTop: scrollTopInput } = {
+    dryRun: false,
+    ...options
+  };
+
   const viewport = memoize(() => {
     let scrollTop: number = 0;
-    if ("scrollY" in scrollElement) {
+    if (dryRun && scrollTopInput !== undefined) {
+      // Calculate the outcomes for a different scrollTop.
+      scrollTop = scrollTopInput;
+    } else if ("scrollY" in scrollElement) {
       scrollTop = scrollElement.scrollY;
     } else if ("scrollTop" in scrollElement) {
       scrollTop = scrollElement.scrollTop;
@@ -204,8 +218,12 @@ export function updateStickyLayout(
     return processedLayout;
   };
 
+  const resultLayouts: IProcessedStickyLayout[] = [];
+
   stickyHandleElements.forEach((stickyHandleElement, i) => {
     const layout = layoutForIndex(i);
+    resultLayouts[i] = layout;
+
     const placeholder = stickyHandleElement.data.placeholderRef.current;
     const offsetParent = (placeholder
       ? placeholder
@@ -219,15 +237,19 @@ export function updateStickyLayout(
       ? elementRootOffset(placeholder)
       : { top: 0, left: 0 };
     const placeholderWidth = placeholder ? placeholder.offsetWidth : null;
-    const { sticky, cssProps } = cssifyStickyLayout(
-      layout,
-      viewport,
-      parentOffset,
-      placeholderOffset,
-      placeholderWidth
-    );
-    stickyHandleElement.data.update(sticky, cssProps);
+    if (!dryRun) {
+      const { sticky, cssProps } = cssifyStickyLayout(
+        layout,
+        viewport,
+        parentOffset,
+        placeholderOffset,
+        placeholderWidth
+      );
+      stickyHandleElement.data.update(sticky, cssProps);
+    }
   });
+
+  return resultLayouts;
 }
 
 function processStickyLayout(
