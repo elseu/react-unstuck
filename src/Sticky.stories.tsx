@@ -1,7 +1,9 @@
 import { action } from "@storybook/addon-actions";
 import { Meta, Story } from "@storybook/react";
 import React, {
+  ComponentPropsWithoutRef,
   CSSProperties,
+  forwardRef,
   PropsWithChildren,
   useCallback,
   useRef,
@@ -420,6 +422,62 @@ export const TestSSR: Story<{
 
 TestSSR.argTypes = {
   behavior: behaviorControl("Behavior"),
+  logLayoutInfo: {
+    name: "Log layout info with listener",
+    type: "boolean",
+  },
+};
+
+const PositionAbsoluteContainerComponent = forwardRef<
+  HTMLDivElement,
+  PropsWithChildren<ComponentPropsWithoutRef<"div">>
+>(({ children, ...other }, ref) => {
+  return (
+    <div
+      ref={ref}
+      style={{
+        height: "100vh",
+        position: "absolute",
+        overflow: "auto",
+        width: 720,
+        top: 0,
+        right: 0,
+      }}
+      {...other}
+    >
+      {children}
+    </div>
+  );
+});
+
+export const PositionAbsoluteContainer: Story<IStickyContentProps> = ({
+  behavior1,
+  behavior2,
+  behavior3,
+  behavior4,
+  behavior5,
+  logLayoutInfo,
+}) => {
+  return (
+    <StickyScrollContainer element={<PositionAbsoluteContainerComponent />}>
+      <StickyContent
+        behavior1={behavior1}
+        behavior2={behavior2}
+        behavior3={behavior3}
+        behavior4={behavior4}
+        behavior5={behavior5}
+        logLayoutInfo={logLayoutInfo}
+      />
+    </StickyScrollContainer>
+  );
+};
+
+PositionAbsoluteContainer.argTypes = {
+  behavior1: behaviorControl("Behavior 1"),
+  behavior2: behaviorControl("Behavior 2"),
+  behavior3: behaviorControl("Behavior 3"),
+  behavior4: behaviorControl("Behavior 4"),
+  behavior5: behaviorControl("Behavior 5"),
   logLayoutInfo: {
     name: "Log layout info with listener",
     type: "boolean",
