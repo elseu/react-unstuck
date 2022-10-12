@@ -3,7 +3,7 @@ import {
   createContext,
   createElement,
   CSSProperties,
-  FC,
+  PropsWithChildren,
   ReactElement,
   useCallback,
   useContext,
@@ -34,7 +34,9 @@ export type IScrollContainerProps =
 
 const defaultScrollStyle = { position: "relative", overflowY: "scroll" };
 
-export const ScrollContainer: FC<IScrollContainerProps> = props => {
+export const ScrollContainer = (
+  props: PropsWithChildren<IScrollContainerProps>
+) => {
   const [scrollElement, setScrollElement] = useState<HTMLElement | null>(null);
   const ref = useCallback(
     (element: HTMLElement | null) => {

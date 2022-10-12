@@ -1,7 +1,7 @@
 import {
   createContext,
   createElement,
-  FC,
+  PropsWithChildren,
   RefObject,
   useContext,
   useEffect,
@@ -71,7 +71,7 @@ function sortEntries(entries: IGatherEntry[]) {
   return sortedEntries;
 }
 
-export const GatherContainer: FC<{}> = ({ children }) => {
+export const GatherContainer = ({ children }: PropsWithChildren<{}>) => {
   const [entries, setEntries] = useState<IGatherEntry[]>([]);
   const entriesValue = useMemo(() => ({ entries }), [entries]);
 

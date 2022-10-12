@@ -2,10 +2,10 @@ import {
   createContext,
   createElement,
   CSSProperties,
-  FC,
   Fragment,
   HTMLAttributes,
   memo,
+  PropsWithChildren,
   ReactElement,
   RefObject,
   useCallback,
@@ -47,10 +47,10 @@ export type IStickyScrollContainerProps =
     };
 
 // A container that supports scrolling with sticky elements.
-export const StickyScrollContainer: FC<IStickyScrollContainerProps> = ({
+export const StickyScrollContainer = ({
   children,
   ...props
-}) => {
+}: PropsWithChildren<IStickyScrollContainerProps>) => {
   return createElement(
     ScrollContainer,
     props,
@@ -59,7 +59,7 @@ export const StickyScrollContainer: FC<IStickyScrollContainerProps> = ({
 };
 
 // A container that supports scrolling with sticky elements.
-export const StickyContainer: FC<{}> = ({ children }) => {
+export const StickyContainer = ({ children }: PropsWithChildren<{}>) => {
   return createElement(
     GatherContainer,
     {},
@@ -77,7 +77,7 @@ export interface IStickyProps extends HTMLAttributes<HTMLDivElement> {
 const wrapperStyle = { display: "block", position: "absolute", width: "100%" };
 const placeholderStyle = { display: "block", position: "relative" };
 
-export const Sticky: FC<IStickyProps> = memo(
+export const Sticky = memo(
   ({
     behavior,
     children,
@@ -85,7 +85,7 @@ export const Sticky: FC<IStickyProps> = memo(
     respondsTo,
     defaultZIndex,
     ...attributes
-  }) => {
+  }: PropsWithChildren<IStickyProps>) => {
     const behaviorState = useRef<any>({});
     const placeholderRef = useRef<HTMLElement>();
     let ref: RefObject<HTMLElement>;
@@ -179,12 +179,12 @@ interface IStickyLayoutContext {
 
 const StickyLayoutContext = createContext<IStickyLayoutContext | null>(null);
 
-const StickyLayoutContainer: FC<{}> = ({ children }) => {
+const StickyLayoutContainer = ({ children }: PropsWithChildren<{}>) => {
   const stickyLayoutContextRef = useRef({
     listeners: [],
     getStickyLayoutInfo: () => ({ hasStickyLayout: false, bottom: 0 }),
     getStickyOffsetForY: () => 0
-  } as IStickyLayoutContext);
+  });
   return createElement(
     StickyLayoutContext.Provider,
     { value: stickyLayoutContextRef.current },
@@ -195,7 +195,7 @@ const StickyLayoutContainer: FC<{}> = ({ children }) => {
 // Calculate sticky layout info for a certain layout.
 function getStickyLayoutInfo(
   stickyLayouts: IProcessedStickyLayout[],
-  stickyHandleElements: IGatheredElement<IStickyHandle>[],
+  stickyHandleElements: Array<IGatheredElement<IStickyHandle>>,
   selector: ISelectorFunction | undefined
 ): IStickyLayoutInfo {
   let hasStickyLayout = false;
@@ -222,7 +222,7 @@ function getStickyLayoutInfo(
 }
 
 // A container that lays out sticky components and makes sure they are updated properly.
-const StickyLayoutInnerContainer: FC<{}> = ({ children }) => {
+const StickyLayoutInnerContainer = ({ children }: PropsWithChildren<{}>) => {
   const stickyLayoutContext = useContext(StickyLayoutContext);
 
   const stickyHandleElements = useGatheredElements(isStickyHandle);

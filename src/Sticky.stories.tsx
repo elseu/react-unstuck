@@ -1,7 +1,13 @@
 import { action } from "@storybook/addon-actions";
 import { boolean, select } from "@storybook/addon-knobs";
 import { storiesOf } from "@storybook/react";
-import React, { CSSProperties, useCallback, useRef, useState } from "react";
+import React, {
+  CSSProperties,
+  PropsWithChildren,
+  useCallback,
+  useRef,
+  useState
+} from "react";
 
 import {
   ILabels,
@@ -60,8 +66,8 @@ interface IStatefulHeaderProps {
   style?: CSSProperties;
 }
 
-const StatefulHeader: React.FC<IStatefulHeaderProps> = React.forwardRef(
-  ({ children, style = {} }, ref) => {
+const StatefulHeader = React.forwardRef(
+  ({ children, style = {} }: PropsWithChildren<IStatefulHeaderProps>, ref) => {
     const [count, setCount] = useState(0);
     const onClick = useCallback(() => {
       setCount(x => x + 1);
@@ -87,14 +93,14 @@ function fullWidth({ labels }: { labels: ILabels }) {
   return !!labels.fullWidth;
 }
 
-const StickyContent: React.FC<IStickyContentProps> = ({
+const StickyContent = ({
   behavior1,
   behavior2,
   behavior3,
   behavior4,
   behavior5,
   logLayoutInfo
-}) => {
+}: IStickyContentProps) => {
   const firstScrollTargetRef = useRef(null);
   const secondScrollTargetRef = useRef(null);
 
@@ -291,10 +297,13 @@ const fullHeightStyle = {
   height: "100%"
 };
 
-const FullHeightStickyContent: React.FC<{
+const FullHeightStickyContent = ({
+  behavior,
+  logLayoutInfo
+}: {
   behavior: IStickyBehavior;
   logLayoutInfo: boolean;
-}> = ({ behavior, logLayoutInfo }) => {
+}) => {
   useStickyLayoutListener(
     ({ getStickyLayoutInfo }) => {
       if (logLayoutInfo) {
