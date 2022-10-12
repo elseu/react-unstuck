@@ -7,7 +7,7 @@ import {
   useEffect,
   useMemo,
   useRef,
-  useState
+  useState,
 } from "react";
 
 interface IGatherEntry {
@@ -24,7 +24,7 @@ interface IGatherUpdaterContext extends IGatherEntriesContext {
 }
 
 export const GatherEntriesContext = createContext<IGatherEntriesContext>({
-  entries: []
+  entries: [],
 });
 
 export const GatherUpdaterContext = createContext<IGatherUpdaterContext | null>(
@@ -40,8 +40,8 @@ function sortEntries(entries: IGatherEntry[]) {
 
   // Tag all elements with a special class.
   const className = `gather-selector-${classIndex++}`;
-  const elements = entries.map(entry => entry.element);
-  elements.forEach(element => {
+  const elements = entries.map((entry) => entry.element);
+  elements.forEach((element) => {
     element.classList.add(className);
   });
 
@@ -49,15 +49,15 @@ function sortEntries(entries: IGatherEntry[]) {
   const sortedEntries: IGatherEntry[] = [];
   Array.prototype.slice
     .call(document.querySelectorAll(`.${className}`))
-    .forEach(element => {
-      const entry = entries.find(e => e.element === element);
+    .forEach((element) => {
+      const entry = entries.find((e) => e.element === element);
       if (entry) {
         sortedEntries.push(entry);
       }
     });
 
   // Remove the special class.
-  elements.forEach(element => {
+  elements.forEach((element) => {
     element.classList.remove(className);
   });
 
@@ -91,7 +91,7 @@ export const GatherContainer = ({ children }: PropsWithChildren<{}>) => {
           // Entries have changed.
           setEntries(this.entries);
         }
-      }
+      },
     }),
     [setEntries]
   );
@@ -120,7 +120,7 @@ export function useGatheredData<T>(match: ElementSelector<T>): T[];
 
 export function useGatheredData(match: (elem: any) => boolean): any[] {
   const elements = useGatheredElements(match);
-  return useMemo(() => elements.map(e => e.data), [elements]);
+  return useMemo(() => elements.map((e) => e.data), [elements]);
 }
 
 export function useGatheredElements<T>(
@@ -129,7 +129,7 @@ export function useGatheredElements<T>(
 
 export function useGatheredElements(match: (elem: any) => boolean): any[] {
   const { entries } = useContext(GatherEntriesContext);
-  return useMemo(() => entries.filter(e => match(e.data)), [match, entries]);
+  return useMemo(() => entries.filter((e) => match(e.data)), [match, entries]);
 }
 
 export function useGather<T>(data: T): RefObject<any> {
@@ -147,14 +147,14 @@ export function useGather<T>(data: T): RefObject<any> {
     }
 
     // Add the entry.
-    updater.update(current => [...current, { element: ref.current, data }]);
+    updater.update((current) => [...current, { element: ref.current, data }]);
 
     const refElement = ref.current;
 
     return () => {
       // Remove the entry.
-      updater.update(current =>
-        current.filter(entry => entry.element !== refElement)
+      updater.update((current) =>
+        current.filter((entry) => entry.element !== refElement)
       );
     };
   }, [data, updater]);

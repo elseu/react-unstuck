@@ -9,7 +9,7 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useState
+  useState,
 } from "react";
 
 interface IScrollContext {
@@ -17,7 +17,7 @@ interface IScrollContext {
 }
 
 const defaultScrollContext: IScrollContext = {
-  scrollElement: typeof window !== "undefined" ? window : null
+  scrollElement: typeof window !== "undefined" ? window : null,
 };
 
 export const ScrollContext = createContext(defaultScrollContext);
@@ -62,7 +62,7 @@ export const ScrollContainer = (
 
   const context: IScrollContext = useMemo(
     () => ({
-      scrollElement: scrollElement || defaultScrollContext.scrollElement
+      scrollElement: scrollElement || defaultScrollContext.scrollElement,
     }),
     [scrollElement]
   );
@@ -102,7 +102,7 @@ export function useScrollEvent(
 
       callbackF({
         scrollElement,
-        event
+        event,
       });
     },
     [scrollElement, callbackF]
@@ -133,7 +133,7 @@ export function useResizeEvent(
 
       callbackF({
         scrollElement,
-        event
+        event,
       });
     },
     [scrollElement, callbackF]

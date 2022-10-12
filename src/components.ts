@@ -12,7 +12,7 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef
+  useRef,
 } from "react";
 import {
   elementRootOffset,
@@ -20,19 +20,19 @@ import {
   IProcessedStickyLayout,
   IStickyBehavior,
   IStickyHandle,
-  updateStickyLayout
+  updateStickyLayout,
 } from "./calc";
 import {
   GatherContainer,
   IGatheredElement,
   useGather,
-  useGatheredElements
+  useGatheredElements,
 } from "./gather";
 import {
   ScrollContainer,
   useResizeEvent,
   useScrollElement,
-  useScrollEvent
+  useScrollEvent,
 } from "./scroll";
 import { ILabels, ISelectorFunction } from "./selectors";
 
@@ -106,8 +106,8 @@ export const Sticky = memo(
           ...stickyCssProps,
           ...(!sticky &&
             defaultZIndex !== undefined && {
-              zIndex: defaultZIndex
-            })
+              zIndex: defaultZIndex,
+            }),
         };
 
         for (const k of Object.keys(wrapperCssProps)) {
@@ -115,10 +115,11 @@ export const Sticky = memo(
         }
         placeholder.style.height = wrapper.offsetHeight + "px";
         wrapper.style.width = placeholder.offsetWidth + "px";
-      }
+      },
     };
 
     try {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       ref = useGather(handle);
     } catch (e) {
       // We are not running in a scroll container. Just show the content.
@@ -132,7 +133,7 @@ export const Sticky = memo(
         {
           ref,
           style: typeof window !== "undefined" ? wrapperStyle : undefined,
-          ...attributes
+          ...attributes,
         },
         children
       ),
@@ -150,10 +151,10 @@ function calculateRespondsTo(
 ): number[][] {
   // Evaluate which elements respond to which.
   const allIndexes = [...Array(handleElements.length)].map((_, i) => i);
-  return handleElements.map(stickyHandleElement => {
+  return handleElements.map((stickyHandleElement) => {
     const { selectorFunction } = stickyHandleElement.data;
     if (selectorFunction) {
-      return allIndexes.filter(i =>
+      return allIndexes.filter((i) =>
         selectorFunction({ labels: handleElements[i].data.labels ?? {} })
       );
     } else {
@@ -183,7 +184,7 @@ const StickyLayoutContainer = ({ children }: PropsWithChildren<{}>) => {
   const stickyLayoutContextRef = useRef({
     listeners: [],
     getStickyLayoutInfo: () => ({ hasStickyLayout: false, bottom: 0 }),
-    getStickyOffsetForY: () => 0
+    getStickyOffsetForY: () => 0,
   });
   return createElement(
     StickyLayoutContext.Provider,
@@ -217,7 +218,7 @@ function getStickyLayoutInfo(
 
   return {
     hasStickyLayout,
-    bottom
+    bottom,
   };
 }
 
@@ -260,7 +261,7 @@ const StickyLayoutInnerContainer = ({ children }: PropsWithChildren<{}>) => {
         respondsToIndexes,
         {
           dryRun: true,
-          scrollTop: y
+          scrollTop: y,
         }
       );
       const layoutInfo = getStickyLayoutInfo(
@@ -313,9 +314,9 @@ const StickyLayoutInnerContainer = ({ children }: PropsWithChildren<{}>) => {
           const { listeners } = stickyLayoutContext;
           if (listeners.length > 0) {
             const event: IStickyLayoutUpdateEvent = {
-              getStickyLayoutInfo: stickyLayoutContext.getStickyLayoutInfo
+              getStickyLayoutInfo: stickyLayoutContext.getStickyLayoutInfo,
             };
-            listeners.forEach(l => l(event));
+            listeners.forEach((l) => l(event));
           }
         }
       });
@@ -344,13 +345,13 @@ const StickyLayoutInnerContainer = ({ children }: PropsWithChildren<{}>) => {
   }, [updateLayoutBound]);
 
   useScrollEvent(
-    info => {
+    (info) => {
       updateLayout(info.scrollElement);
     },
     [updateLayout]
   );
   useResizeEvent(
-    info => {
+    (info) => {
       updateLayout(info.scrollElement);
     },
     [updateLayout]
@@ -375,7 +376,7 @@ export function useStickyLayoutListener(
       return () => {
         // Remove the listener.
         stickyLayoutContext.listeners = stickyLayoutContext.listeners.filter(
-          l => l !== listenerRef.current
+          (l) => l !== listenerRef.current
         );
       };
     },
@@ -390,7 +391,7 @@ export function useStickyLayoutInfo(): () => IStickyLayoutInfo {
   return (selector?: ISelectorFunction) =>
     context?.getStickyLayoutInfo(selector) ?? {
       hasStickyLayout: false,
-      bottom: 0
+      bottom: 0,
     };
 }
 interface IStickyOffsetCalculator {
@@ -448,6 +449,6 @@ export function useStickyOffsetCalculator(): IStickyOffsetCalculator {
       return (
         naiveScrollTop - context.getStickyOffsetForY(naiveScrollTop, selector)
       );
-    }
+    },
   };
 }
