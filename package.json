@@ -10,6 +10,16 @@
     "name": "Sebastiaan Besselsen",
     "email": "S.Besselsen@sdu.nl"
   },
+  "contributors": [
+    {
+      "name": "Sebastiaan Besselsen",
+      "email": "S.Besselsen@sdu.nl"
+    },
+    {
+      "name": "Lennard Westerveld",
+      "email": "mail@lennard.pro"
+    }
+  ],
   "homepage": "https://github.com/elseu/react-unstuck",
   "repository": {
     "type": "git",
