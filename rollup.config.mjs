@@ -34,6 +34,7 @@ export default {
     typescriptPlugin({
       typescript,
       declaration: true,
+      declarationDir: "dist",
       exclude: ["**.test.tsx", "**.stories.tsx"],
     }),
     commonjs(),
