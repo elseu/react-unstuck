@@ -76,9 +76,10 @@ function memoize<T>(f: () => T): () => T {
   };
 }
 
-export function elementRootOffset(
-  element: HTMLElement
-): { top: number; left: number } {
+export function elementRootOffset(element: HTMLElement): {
+  top: number;
+  left: number;
+} {
   let top = 0;
   let left = 0;
   let elem: HTMLElement | null = element;
@@ -103,7 +104,7 @@ export function updateStickyLayout(
 ): IProcessedStickyLayout[] {
   const { dryRun, scrollTop: scrollTopInput } = {
     dryRun: false,
-    ...options
+    ...options,
   };
 
   const viewport = memoize(() => {
@@ -128,7 +129,7 @@ export function updateStickyLayout(
           : scrollElement.innerHeight,
       scrollTop,
       topOffset:
-        "nodeType" in scrollElement ? elementRootOffset(scrollElement).top : 0
+        "nodeType" in scrollElement ? elementRootOffset(scrollElement).top : 0,
     };
   });
 
@@ -141,13 +142,12 @@ export function updateStickyLayout(
             .top -
           viewport().topOffset -
           viewport().scrollTop,
-        height: gatheredElement.element.offsetHeight
+        height: gatheredElement.element.offsetHeight,
       };
     });
 
-  const layouts: Array<
-    IProcessedStickyLayout | undefined
-  > = stickyHandleElements.map(() => undefined);
+  const layouts: Array<IProcessedStickyLayout | undefined> =
+    stickyHandleElements.map(() => undefined);
 
   const prevStickyForIndex = (
     i: number,
@@ -162,10 +162,10 @@ export function updateStickyLayout(
     selectedStickyIndexes: number[]
   ): IViewportProcessedStickyLayout[] => {
     return selectedStickyIndexes
-      .filter(index => index < i)
-      .map(index => layouts[index])
+      .filter((index) => index < i)
+      .map((index) => layouts[index])
       .filter(
-        layout => layout !== undefined && layout !== null
+        (layout) => layout !== undefined && layout !== null
       ) as IViewportProcessedStickyLayout[];
   };
 
@@ -173,7 +173,7 @@ export function updateStickyLayout(
     i: number,
     selectedStickyIndexes: number[]
   ): (() => IElementParameters | null) => {
-    const indexes = selectedStickyIndexes.filter(index => index < i);
+    const indexes = selectedStickyIndexes.filter((index) => index < i);
     if (indexes.length === 0) {
       return () => null;
     }
@@ -183,7 +183,7 @@ export function updateStickyLayout(
     i: number,
     selectedStickyIndexes: number[]
   ): (() => IElementParameters | null) => {
-    const indexes = selectedStickyIndexes.filter(index => index > i);
+    const indexes = selectedStickyIndexes.filter((index) => index > i);
     if (indexes.length === 0) {
       return () => null;
     }
@@ -210,7 +210,7 @@ export function updateStickyLayout(
       prevSticky: () => prevStickyForIndex(i, selectedStickyIndexes),
       prevStickies: () => prevStickiesForIndex(i, selectedStickyIndexes),
       prevElement: prevElementParamsForIndex(i, selectedStickyIndexes),
-      nextElement: nextElementParamsForIndex(i, selectedStickyIndexes)
+      nextElement: nextElementParamsForIndex(i, selectedStickyIndexes),
     });
 
     const processedLayout = processStickyLayout(layout, element, i);
@@ -225,9 +225,8 @@ export function updateStickyLayout(
     resultLayouts[i] = layout;
 
     const placeholder = stickyHandleElement.data.placeholderRef.current;
-    const offsetParent = (placeholder
-      ? placeholder
-      : stickyHandleElement.element
+    const offsetParent = (
+      placeholder ? placeholder : stickyHandleElement.element
     ).offsetParent as HTMLElement;
     const parentOffset =
       offsetParent === scrollElement
@@ -274,11 +273,11 @@ function cssifyStickyLayout(
   placeholderWidth: number | null
 ): { sticky: boolean; cssProps: ICssStyleData } {
   let cssProps: ICssStyleData = {
-    left: "inherit",
-    top: "inherit",
+    left: null,
+    top: null,
     zIndex: 1,
     width: "100%",
-    height: "auto"
+    height: "auto",
   };
 
   if (layout === null) {
@@ -297,7 +296,7 @@ function cssifyStickyLayout(
       top: top + scrollTop - parentOffset.top + "px",
       width: placeholderWidth !== null ? placeholderWidth + "px" : "100%",
       height: fixedHeight === undefined ? "auto" : fixedHeight + "px",
-      zIndex
+      zIndex,
     };
   } else {
     cssProps = {
@@ -306,7 +305,7 @@ function cssifyStickyLayout(
       top: top + topOffset + "px",
       width: placeholderWidth !== null ? placeholderWidth + "px" : "100%",
       height: fixedHeight === undefined ? "auto" : fixedHeight + "px",
-      zIndex
+      zIndex,
     };
   }
   return { sticky, cssProps };

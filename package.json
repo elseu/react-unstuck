@@ -3,13 +3,23 @@
   "license": "MIT",
   "version": "1.0.0",
   "peerDependencies": {
-    "react": "^16.10.2 || ^17.0.0",
-    "react-dom": "^16.10.2 || ^17.0.0"
+    "react": "^16.10.2 || ^17.0.0 || ^18.0.0",
+    "react-dom": "^16.10.2 || ^17.0.0 || ^18.0.0"
   },
   "author": {
     "name": "Sebastiaan Besselsen",
     "email": "S.Besselsen@sdu.nl"
   },
+  "contributors": [
+    {
+      "name": "Sebastiaan Besselsen",
+      "email": "S.Besselsen@sdu.nl"
+    },
+    {
+      "name": "Lennard Westerveld",
+      "email": "mail@lennard.pro"
+    }
+  ],
   "homepage": "https://github.com/elseu/react-unstuck",
   "repository": {
     "type": "git",
@@ -19,7 +29,7 @@
     "url": "https://github.com/elseu/react-unstuck/issues"
   },
   "scripts": {
-    "build": "rimraf dist; rollup -c; rimraf \"dist/*.stories.d.ts\"",
+    "build": "rimraf dist; rollup -c",
     "dev": "start-storybook -p 6006",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -56,45 +66,38 @@
     ]
   },
   "devDependencies": {
-    "@babel/core": "^7.6.3",
-    "@storybook/addon-a11y": "^5.3.13",
-    "@storybook/addon-actions": "^5.3.13",
-    "@storybook/addon-knobs": "^5.3.13",
-    "@storybook/addon-links": "^5.3.13",
-    "@storybook/addon-notes": "^5.3.13",
-    "@storybook/addons": "^5.3.13",
-    "@storybook/preset-create-react-app": "^1.5.2",
-    "@storybook/react": "^5.3.13",
-    "@types/jest": "24.0.18",
-    "@types/node": "12.7.12",
-    "@types/react": "16.9.5",
-    "@types/react-dom": "16.9.1",
-    "@types/storybook__react": "^4.0.2",
-    "eslint": "^6.5.1",
-    "husky": "^4.0.0",
-    "prettier": "^1.19.1",
-    "pretty-quick": "^2.0.1",
-    "react": "^16.10.2",
-    "react-dom": "^16.10.2",
-    "react-scripts": "^3.3.0",
-    "rimraf": "^3.0.0",
-    "rollup": "^1.23.1",
-    "rollup-plugin-commonjs": "^10.1.0",
-    "rollup-plugin-node-resolve": "^5.2.0",
-    "rollup-plugin-peer-deps-external": "^2.2.0",
-    "rollup-plugin-typescript2": "^0.24.3",
-    "rollup-plugin-url": "^3.0.0",
-    "semantic-release": "^17.0.0",
-    "storybook-addon-jsx": "^7.3.6",
-    "ts-loader": "^6.2.1",
-    "tslint": "^5.20.0",
+    "@babel/core": "^7.19.3",
+    "@rollup/plugin-commonjs": "^23.0.0",
+    "@rollup/plugin-node-resolve": "^15.0.0",
+    "@rollup/plugin-typescript": "^9.0.1",
+    "@rollup/plugin-url": "^8.0.0",
+    "@storybook/addon-a11y": "^6.5.12",
+    "@storybook/addon-actions": "^6.5.12",
+    "@storybook/addon-controls": "^6.5.13-alpha.0",
+    "@storybook/addon-links": "^6.5.12",
+    "@storybook/addons": "^6.5.12",
+    "@storybook/builder-webpack5": "^6.5.12",
+    "@storybook/manager-webpack5": "^6.5.12",
+    "@storybook/react": "^6.5.12",
+    "@types/jest": "29.1.2",
+    "@types/node": "18.8.4",
+    "@types/react": "^18.0.21",
+    "@types/react-dom": "^18.0.6",
+    "eslint": "^8.25.0",
+    "husky": "^8.0.1",
+    "prettier": "^2.7.1",
+    "pretty-quick": "^3.1.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "^5.0.1",
+    "rimraf": "^3.0.2",
+    "rollup": "^3.1.0",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "semantic-release": "^19.0.5",
+    "ts-loader": "^9.4.1",
+    "tslint": "^5.20.1",
     "tslint-config-prettier": "^1.18.0",
     "tslint-react": "^4.1.0",
-    "typescript": "^3.6.4"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "pretty-quick --staged"
-    }
+    "typescript": "^4.8.4"
   }
 }
