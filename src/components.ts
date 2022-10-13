@@ -2,6 +2,7 @@ import {
   createContext,
   createElement,
   CSSProperties,
+  FC,
   Fragment,
   HTMLAttributes,
   memo,
@@ -47,10 +48,9 @@ export type IStickyScrollContainerProps =
     };
 
 // A container that supports scrolling with sticky elements.
-export const StickyScrollContainer = ({
-  children,
-  ...props
-}: PropsWithChildren<IStickyScrollContainerProps>) => {
+export const StickyScrollContainer: FC<
+  PropsWithChildren<IStickyScrollContainerProps>
+> = ({ children, ...props }) => {
   return createElement(
     ScrollContainer,
     props,
@@ -59,7 +59,7 @@ export const StickyScrollContainer = ({
 };
 
 // A container that supports scrolling with sticky elements.
-export const StickyContainer = ({ children }: PropsWithChildren<{}>) => {
+export const StickyContainer: FC<PropsWithChildren<{}>> = ({ children }) => {
   return createElement(
     GatherContainer,
     {},
@@ -77,7 +77,7 @@ export interface IStickyProps extends HTMLAttributes<HTMLDivElement> {
 const wrapperStyle = { display: "block", position: "absolute", width: "100%" };
 const placeholderStyle = { display: "block", position: "relative" };
 
-export const Sticky = memo(
+export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
   ({
     behavior,
     children,
@@ -85,7 +85,7 @@ export const Sticky = memo(
     respondsTo,
     defaultZIndex,
     ...attributes
-  }: PropsWithChildren<IStickyProps>) => {
+  }) => {
     const behaviorState = useRef<any>({});
     const placeholderRef = useRef<HTMLElement>();
     let ref: RefObject<HTMLElement>;
@@ -180,7 +180,7 @@ interface IStickyLayoutContext {
 
 const StickyLayoutContext = createContext<IStickyLayoutContext | null>(null);
 
-const StickyLayoutContainer = ({ children }: PropsWithChildren<{}>) => {
+const StickyLayoutContainer: FC<PropsWithChildren<{}>> = ({ children }) => {
   const stickyLayoutContextRef = useRef({
     listeners: [],
     getStickyLayoutInfo: () => ({ hasStickyLayout: false, bottom: 0 }),
@@ -223,7 +223,9 @@ function getStickyLayoutInfo(
 }
 
 // A container that lays out sticky components and makes sure they are updated properly.
-const StickyLayoutInnerContainer = ({ children }: PropsWithChildren<{}>) => {
+const StickyLayoutInnerContainer: FC<PropsWithChildren<{}>> = ({
+  children,
+}) => {
   const stickyLayoutContext = useContext(StickyLayoutContext);
 
   const stickyHandleElements = useGatheredElements(isStickyHandle);
