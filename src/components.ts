@@ -6,13 +6,14 @@ import {
   Fragment,
   HTMLAttributes,
   memo,
+  PropsWithChildren,
   ReactElement,
   RefObject,
   useCallback,
   useContext,
   useEffect,
   useMemo,
-  useRef
+  useRef,
 } from "react";
 import {
   elementRootOffset,
@@ -20,19 +21,19 @@ import {
   IProcessedStickyLayout,
   IStickyBehavior,
   IStickyHandle,
-  updateStickyLayout
+  updateStickyLayout,
 } from "./calc";
 import {
   GatherContainer,
   IGatheredElement,
   useGather,
-  useGatheredElements
+  useGatheredElements,
 } from "./gather";
 import {
   ScrollContainer,
   useResizeEvent,
   useScrollElement,
-  useScrollEvent
+  useScrollEvent,
 } from "./scroll";
 import { ILabels, ISelectorFunction } from "./selectors";
 
@@ -47,10 +48,9 @@ export type IStickyScrollContainerProps =
     };
 
 // A container that supports scrolling with sticky elements.
-export const StickyScrollContainer: FC<IStickyScrollContainerProps> = ({
-  children,
-  ...props
-}) => {
+export const StickyScrollContainer: FC<
+  PropsWithChildren<IStickyScrollContainerProps>
+> = ({ children, ...props }) => {
   return createElement(
     ScrollContainer,
     props,
@@ -59,7 +59,7 @@ export const StickyScrollContainer: FC<IStickyScrollContainerProps> = ({
 };
 
 // A container that supports scrolling with sticky elements.
-export const StickyContainer: FC<{}> = ({ children }) => {
+export const StickyContainer: FC<PropsWithChildren<{}>> = ({ children }) => {
   return createElement(
     GatherContainer,
     {},
@@ -77,7 +77,7 @@ export interface IStickyProps extends HTMLAttributes<HTMLDivElement> {
 const wrapperStyle = { display: "block", position: "absolute", width: "100%" };
 const placeholderStyle = { display: "block", position: "relative" };
 
-export const Sticky: FC<IStickyProps> = memo(
+export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
   ({
     behavior,
     children,
@@ -106,8 +106,8 @@ export const Sticky: FC<IStickyProps> = memo(
           ...stickyCssProps,
           ...(!sticky &&
             defaultZIndex !== undefined && {
-              zIndex: defaultZIndex
-            })
+              zIndex: defaultZIndex,
+            }),
         };
 
         for (const k of Object.keys(wrapperCssProps)) {
@@ -115,10 +115,11 @@ export const Sticky: FC<IStickyProps> = memo(
         }
         placeholder.style.height = wrapper.offsetHeight + "px";
         wrapper.style.width = placeholder.offsetWidth + "px";
-      }
+      },
     };
 
     try {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       ref = useGather(handle);
     } catch (e) {
       // We are not running in a scroll container. Just show the content.
@@ -132,7 +133,7 @@ export const Sticky: FC<IStickyProps> = memo(
         {
           ref,
           style: typeof window !== "undefined" ? wrapperStyle : undefined,
-          ...attributes
+          ...attributes,
         },
         children
       ),
@@ -150,10 +151,10 @@ function calculateRespondsTo(
 ): number[][] {
   // Evaluate which elements respond to which.
   const allIndexes = [...Array(handleElements.length)].map((_, i) => i);
-  return handleElements.map(stickyHandleElement => {
+  return handleElements.map((stickyHandleElement) => {
     const { selectorFunction } = stickyHandleElement.data;
     if (selectorFunction) {
-      return allIndexes.filter(i =>
+      return allIndexes.filter((i) =>
         selectorFunction({ labels: handleElements[i].data.labels ?? {} })
       );
     } else {
@@ -179,12 +180,12 @@ interface IStickyLayoutContext {
 
 const StickyLayoutContext = createContext<IStickyLayoutContext | null>(null);
 
-const StickyLayoutContainer: FC<{}> = ({ children }) => {
+const StickyLayoutContainer: FC<PropsWithChildren<{}>> = ({ children }) => {
   const stickyLayoutContextRef = useRef({
     listeners: [],
     getStickyLayoutInfo: () => ({ hasStickyLayout: false, bottom: 0 }),
-    getStickyOffsetForY: () => 0
-  } as IStickyLayoutContext);
+    getStickyOffsetForY: () => 0,
+  });
   return createElement(
     StickyLayoutContext.Provider,
     { value: stickyLayoutContextRef.current },
@@ -195,7 +196,7 @@ const StickyLayoutContainer: FC<{}> = ({ children }) => {
 // Calculate sticky layout info for a certain layout.
 function getStickyLayoutInfo(
   stickyLayouts: IProcessedStickyLayout[],
-  stickyHandleElements: IGatheredElement<IStickyHandle>[],
+  stickyHandleElements: Array<IGatheredElement<IStickyHandle>>,
   selector: ISelectorFunction | undefined
 ): IStickyLayoutInfo {
   let hasStickyLayout = false;
@@ -217,12 +218,14 @@ function getStickyLayoutInfo(
 
   return {
     hasStickyLayout,
-    bottom
+    bottom,
   };
 }
 
 // A container that lays out sticky components and makes sure they are updated properly.
-const StickyLayoutInnerContainer: FC<{}> = ({ children }) => {
+const StickyLayoutInnerContainer: FC<PropsWithChildren<{}>> = ({
+  children,
+}) => {
   const stickyLayoutContext = useContext(StickyLayoutContext);
 
   const stickyHandleElements = useGatheredElements(isStickyHandle);
@@ -260,7 +263,7 @@ const StickyLayoutInnerContainer: FC<{}> = ({ children }) => {
         respondsToIndexes,
         {
           dryRun: true,
-          scrollTop: y
+          scrollTop: y,
         }
       );
       const layoutInfo = getStickyLayoutInfo(
@@ -313,9 +316,9 @@ const StickyLayoutInnerContainer: FC<{}> = ({ children }) => {
           const { listeners } = stickyLayoutContext;
           if (listeners.length > 0) {
             const event: IStickyLayoutUpdateEvent = {
-              getStickyLayoutInfo: stickyLayoutContext.getStickyLayoutInfo
+              getStickyLayoutInfo: stickyLayoutContext.getStickyLayoutInfo,
             };
-            listeners.forEach(l => l(event));
+            listeners.forEach((l) => l(event));
           }
         }
       });
@@ -344,13 +347,13 @@ const StickyLayoutInnerContainer: FC<{}> = ({ children }) => {
   }, [updateLayoutBound]);
 
   useScrollEvent(
-    info => {
+    (info) => {
       updateLayout(info.scrollElement);
     },
     [updateLayout]
   );
   useResizeEvent(
-    info => {
+    (info) => {
       updateLayout(info.scrollElement);
     },
     [updateLayout]
@@ -375,7 +378,7 @@ export function useStickyLayoutListener(
       return () => {
         // Remove the listener.
         stickyLayoutContext.listeners = stickyLayoutContext.listeners.filter(
-          l => l !== listenerRef.current
+          (l) => l !== listenerRef.current
         );
       };
     },
@@ -390,7 +393,7 @@ export function useStickyLayoutInfo(): () => IStickyLayoutInfo {
   return (selector?: ISelectorFunction) =>
     context?.getStickyLayoutInfo(selector) ?? {
       hasStickyLayout: false,
-      bottom: 0
+      bottom: 0,
     };
 }
 interface IStickyOffsetCalculator {
@@ -448,6 +451,6 @@ export function useStickyOffsetCalculator(): IStickyOffsetCalculator {
       return (
         naiveScrollTop - context.getStickyOffsetForY(naiveScrollTop, selector)
       );
-    }
+    },
   };
 }

@@ -1,28 +1,12 @@
-const path = require("path");
-
 module.exports = {
+  core: {
+    builder: "webpack5",
+  },
   stories: ["../src/**/*.stories.tsx"],
   addons: [
-    "@storybook/preset-create-react-app",
-    "@storybook/addon-actions/register",
-    "@storybook/addon-links/register",
-    "@storybook/addon-knobs/register"
+    "@storybook/addon-controls",
+    "@storybook/addon-actions",
+    "@storybook/addon-links",
   ],
-  webpackFinal: async config => {
-    config.module.rules.push({
-      test: /\.(ts|tsx)$/,
-      use: [
-        {
-          loader: require.resolve("ts-loader"),
-          options: {
-            compilerOptions: {
-              noEmit: false
-            }
-          }
-        }
-      ]
-    });
-    config.resolve.extensions.push(".ts", ".tsx");
-    return config;
-  }
+  framework: "@storybook/react",
 };

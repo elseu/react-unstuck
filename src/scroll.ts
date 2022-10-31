@@ -4,12 +4,13 @@ import {
   createElement,
   CSSProperties,
   FC,
+  PropsWithChildren,
   ReactElement,
   useCallback,
   useContext,
   useEffect,
   useMemo,
-  useState
+  useState,
 } from "react";
 
 interface IScrollContext {
@@ -17,7 +18,7 @@ interface IScrollContext {
 }
 
 const defaultScrollContext: IScrollContext = {
-  scrollElement: typeof window !== "undefined" ? window : null
+  scrollElement: typeof window !== "undefined" ? window : null,
 };
 
 export const ScrollContext = createContext(defaultScrollContext);
@@ -34,7 +35,9 @@ export type IScrollContainerProps =
 
 const defaultScrollStyle = { position: "relative", overflowY: "scroll" };
 
-export const ScrollContainer: FC<IScrollContainerProps> = props => {
+export const ScrollContainer: FC<PropsWithChildren<IScrollContainerProps>> = (
+  props
+) => {
   const [scrollElement, setScrollElement] = useState<HTMLElement | null>(null);
   const ref = useCallback(
     (element: HTMLElement | null) => {
@@ -60,7 +63,7 @@ export const ScrollContainer: FC<IScrollContainerProps> = props => {
 
   const context: IScrollContext = useMemo(
     () => ({
-      scrollElement: scrollElement || defaultScrollContext.scrollElement
+      scrollElement: scrollElement || defaultScrollContext.scrollElement,
     }),
     [scrollElement]
   );
@@ -100,7 +103,7 @@ export function useScrollEvent(
 
       callbackF({
         scrollElement,
-        event
+        event,
       });
     },
     [scrollElement, callbackF]
@@ -131,7 +134,7 @@ export function useResizeEvent(
 
       callbackF({
         scrollElement,
-        event
+        event,
       });
     },
     [scrollElement, callbackF]
