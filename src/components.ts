@@ -69,8 +69,8 @@ export const StickyContainer: FC<PropsWithChildren<{}>> = ({ children }) => {
 };
 
 export interface IStickyProps extends HTMLAttributes<HTMLDivElement> {
-  zIndex: IZIndexCalculation | number;
   behavior: IStickyBehavior;
+  zIndex?: IZIndexCalculation | number;
   labels?: ILabels;
   respondsTo?: ISelectorFunction;
 }
