@@ -97,7 +97,7 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
       selectorFunction: respondsTo,
       behaviorState: behaviorState.current,
       placeholderRef,
-      update: (_sticky, stickyCssProps, layout) => {
+      update: (isSticky, cssProps, layout) => {
         const wrapper = ref.current;
         const placeholder = placeholderRef.current;
         if (!wrapper || !placeholder) {
@@ -105,8 +105,8 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
         }
         const wrapperCssProps: ICssStyleData = {
           ...wrapperStyle,
-          ...stickyCssProps,
-          zIndex: typeof zIndex === 'undefined' ? stickyCssProps.zIndex : typeof zIndex === 'function' ? zIndex(stickyCssProps, layout) : zIndex,
+          ...cssProps,
+          zIndex: typeof zIndex === 'undefined' ? cssProps.zIndex : typeof zIndex === 'function' ? zIndex(isSticky, cssProps, layout) : zIndex,
         };
 
         for (const k of Object.keys(wrapperCssProps)) {

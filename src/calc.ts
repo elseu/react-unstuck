@@ -30,7 +30,7 @@ export interface IStickyParameters<S = any> {
   nextElement(): IElementParameters | null;
 }
 
-export type IZIndexCalculation = (styles: ICssStyleData, layout: IProcessedStickyLayout) => number;
+export type IZIndexCalculation = (sticky: boolean, styles: ICssStyleData, layout: IProcessedStickyLayout) => number;
 
 export type IStickyBehavior<S = any> = (
   params: IStickyParameters<S>
