@@ -21,6 +21,7 @@ import {
   IProcessedStickyLayout,
   IStickyBehavior,
   IStickyHandle,
+  IZIndexCalculation,
   updateStickyLayout,
 } from "./calc";
 import {
@@ -68,8 +69,8 @@ export const StickyContainer: FC<PropsWithChildren<{}>> = ({ children }) => {
 };
 
 export interface IStickyProps extends HTMLAttributes<HTMLDivElement> {
-  defaultZIndex?: number;
   behavior: IStickyBehavior;
+  zIndex?: IZIndexCalculation | number;
   labels?: ILabels;
   respondsTo?: ISelectorFunction;
 }
@@ -79,23 +80,24 @@ const placeholderStyle = { display: "block", position: "relative" };
 
 export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
   ({
+    zIndex,
     behavior,
     children,
     labels,
     respondsTo,
-    defaultZIndex,
     ...attributes
   }) => {
     const behaviorState = useRef<any>({});
     const placeholderRef = useRef<HTMLElement>();
     let ref: RefObject<HTMLElement>;
+
     const handle: IStickyHandle = {
       behavior,
       labels,
       selectorFunction: respondsTo,
       behaviorState: behaviorState.current,
       placeholderRef,
-      update: (sticky, stickyCssProps) => {
+      update: (isSticky, cssProps, layout) => {
         const wrapper = ref.current;
         const placeholder = placeholderRef.current;
         if (!wrapper || !placeholder) {
@@ -103,16 +105,14 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
         }
         const wrapperCssProps: ICssStyleData = {
           ...wrapperStyle,
-          ...stickyCssProps,
-          ...(!sticky &&
-            defaultZIndex !== undefined && {
-              zIndex: defaultZIndex,
-            }),
+          ...cssProps,
+          zIndex: typeof zIndex === 'undefined' ? cssProps.zIndex : typeof zIndex === 'function' ? zIndex(isSticky, cssProps, layout) : zIndex,
         };
 
         for (const k of Object.keys(wrapperCssProps)) {
           wrapper.style[k as any] = wrapperCssProps[k];
         }
+        
         placeholder.style.height = wrapper.offsetHeight + "px";
         wrapper.style.width = placeholder.offsetWidth + "px";
       },

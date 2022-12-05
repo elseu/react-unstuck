@@ -30,6 +30,8 @@ export interface IStickyParameters<S = any> {
   nextElement(): IElementParameters | null;
 }
 
+export type IZIndexCalculation = (sticky: boolean, styles: ICssStyleData, layout: IProcessedStickyLayout) => number;
+
 export type IStickyBehavior<S = any> = (
   params: IStickyParameters<S>
 ) => IStickyLayout;
@@ -61,7 +63,7 @@ export interface IStickyHandle {
   labels: ILabels | undefined;
   selectorFunction: ISelectorFunction | undefined;
   placeholderRef: RefObject<HTMLElement | undefined>;
-  update(stickyCopy: boolean, stickyCopyCss: ICssStyleData): void;
+  update(stickyCopy: boolean, stickyCopyCss: ICssStyleData, layout: IProcessedStickyLayout): void;
 }
 
 function memoize<T>(f: () => T): () => T {
@@ -244,7 +246,7 @@ export function updateStickyLayout(
         placeholderOffset,
         placeholderWidth
       );
-      stickyHandleElement.data.update(sticky, cssProps);
+      stickyHandleElement.data.update(sticky, cssProps, layout);
     }
   });
 
@@ -287,7 +289,7 @@ function cssifyStickyLayout(
   const sticky = true;
   const { top, z, fixedHeight } = layout;
   const { scrollTop, topOffset } = viewport();
-  const zIndex = 1000 + z;
+  const zIndex = z + 1000;
 
   if (layout.scrolling) {
     cssProps = {
