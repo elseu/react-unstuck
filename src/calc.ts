@@ -30,6 +30,8 @@ export interface IStickyParameters<S = any> {
   nextElement(): IElementParameters | null;
 }
 
+export type IZIndexCalculation = (params: ICssStyleData) => number;
+
 export type IStickyBehavior<S = any> = (
   params: IStickyParameters<S>
 ) => IStickyLayout;

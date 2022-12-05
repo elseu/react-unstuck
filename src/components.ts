@@ -21,6 +21,7 @@ import {
   IProcessedStickyLayout,
   IStickyBehavior,
   IStickyHandle,
+  IZIndexCalculation,
   updateStickyLayout,
 } from "./calc";
 import {
@@ -68,7 +69,7 @@ export const StickyContainer: FC<PropsWithChildren<{}>> = ({ children }) => {
 };
 
 export interface IStickyProps extends HTMLAttributes<HTMLDivElement> {
-  defaultZIndex?: number;
+  zIndex: IZIndexCalculation | number;
   behavior: IStickyBehavior;
   labels?: ILabels;
   respondsTo?: ISelectorFunction;
@@ -79,16 +80,17 @@ const placeholderStyle = { display: "block", position: "relative" };
 
 export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
   ({
+    zIndex,
     behavior,
     children,
     labels,
     respondsTo,
-    defaultZIndex,
     ...attributes
   }) => {
     const behaviorState = useRef<any>({});
     const placeholderRef = useRef<HTMLElement>();
     let ref: RefObject<HTMLElement>;
+
     const handle: IStickyHandle = {
       behavior,
       labels,
@@ -104,10 +106,7 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
         const wrapperCssProps: ICssStyleData = {
           ...wrapperStyle,
           ...stickyCssProps,
-          ...(!sticky &&
-            defaultZIndex !== undefined && {
-              zIndex: defaultZIndex,
-            }),
+          zIndex: typeof zIndex === 'undefined' ? stickyCssProps.zIndex : typeof zIndex === 'function' ? zIndex(stickyCssProps) : zIndex,
         };
 
         for (const k of Object.keys(wrapperCssProps)) {
