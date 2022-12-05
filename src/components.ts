@@ -97,7 +97,7 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
       selectorFunction: respondsTo,
       behaviorState: behaviorState.current,
       placeholderRef,
-      update: (sticky, stickyCssProps) => {
+      update: (_sticky, stickyCssProps, layout) => {
         const wrapper = ref.current;
         const placeholder = placeholderRef.current;
         if (!wrapper || !placeholder) {
@@ -106,12 +106,13 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
         const wrapperCssProps: ICssStyleData = {
           ...wrapperStyle,
           ...stickyCssProps,
-          zIndex: typeof zIndex === 'undefined' ? stickyCssProps.zIndex : typeof zIndex === 'function' ? zIndex(stickyCssProps) : zIndex,
+          zIndex: typeof zIndex === 'undefined' ? stickyCssProps.zIndex : typeof zIndex === 'function' ? zIndex(stickyCssProps, layout) : zIndex,
         };
 
         for (const k of Object.keys(wrapperCssProps)) {
           wrapper.style[k as any] = wrapperCssProps[k];
         }
+        
         placeholder.style.height = wrapper.offsetHeight + "px";
         wrapper.style.width = placeholder.offsetWidth + "px";
       },
