@@ -38,6 +38,31 @@ import {
 } from "./scroll";
 import { ILabels, ISelectorFunction } from "./selectors";
 
+export type IStickyConfig = {
+  baseZIndex: number;
+};
+
+const defaultStickyConfig: IStickyConfig = {
+  baseZIndex: 1000,
+};
+
+const StickyConfigContext = createContext<IStickyConfig>(defaultStickyConfig);
+
+export const StickyConfigProvider: React.FC<
+  PropsWithChildren<Partial<IStickyConfig>>
+> = (props) => {
+  const { children, ...configProps } = props;
+  const config: IStickyConfig = {
+    ...defaultStickyConfig,
+    ...configProps,
+  };
+  return createElement(
+    StickyConfigContext.Provider,
+    { value: config },
+    children
+  );
+};
+
 export type IStickyScrollContainerProps =
   | {
       element: ReactElement<{ ref: (element: HTMLElement | null) => void }>;
@@ -70,6 +95,7 @@ export const StickyContainer: FC<PropsWithChildren<{}>> = ({ children }) => {
 
 export interface IStickyProps extends HTMLAttributes<HTMLDivElement> {
   defaultZIndex?: number;
+  stickyBaseZIndex?: number;
   behavior: IStickyBehavior;
   labels?: ILabels;
   respondsTo?: ISelectorFunction;
@@ -87,6 +113,7 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
     defaultZIndex,
     ...attributes
   }) => {
+    const { baseZIndex } = useContext(StickyConfigContext);
     const behaviorState = useRef<any>({});
     const placeholderRef = useRef<HTMLElement>();
     let ref: RefObject<HTMLElement>;
@@ -95,6 +122,7 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
       labels,
       selectorFunction: respondsTo,
       behaviorState: behaviorState.current,
+      baseZIndex,
       placeholderRef,
       update: (sticky, stickyCssProps) => {
         const wrapper = ref.current;
