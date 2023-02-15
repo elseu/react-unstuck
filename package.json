@@ -29,6 +29,7 @@
     "url": "https://github.com/elseu/react-unstuck/issues"
   },
   "scripts": {
+    "prepare": "husky install",
     "build": "rimraf dist; rollup -c",
     "dev": "start-storybook -p 6006",
     "test": "react-scripts test",
