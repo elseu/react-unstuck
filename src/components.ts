@@ -12,6 +12,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
 } from "react";
@@ -125,6 +126,18 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
       // We are not running in a scroll container. Just show the content.
       return createElement(Fragment, {}, children);
     }
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useLayoutEffect(() => {
+      // Set wrapper style in a layout effect for compatibility with SSR.
+      if (ref.current) {
+        const element = ref.current;
+        Object.entries(wrapperStyle).forEach(([k, v]) => {
+          element.style.setProperty(k, v);
+        });
+      }
+    }, [ref]);
+
     return createElement(
       Fragment,
       {},
@@ -132,7 +145,6 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
         "div",
         {
           ref,
-          style: typeof window !== "undefined" ? wrapperStyle : undefined,
           ...attributes,
         },
         children
