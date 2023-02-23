@@ -61,6 +61,7 @@ export interface IStickyHandle {
   labels: ILabels | undefined;
   selectorFunction: ISelectorFunction | undefined;
   placeholderRef: RefObject<HTMLElement | undefined>;
+  baseZIndex: number;
   update(stickyCopy: boolean, stickyCopyCss: ICssStyleData): void;
 }
 
@@ -242,7 +243,8 @@ export function updateStickyLayout(
         viewport,
         parentOffset,
         placeholderOffset,
-        placeholderWidth
+        placeholderWidth,
+        stickyHandleElement.data.baseZIndex
       );
       stickyHandleElement.data.update(sticky, cssProps);
     }
@@ -270,7 +272,8 @@ function cssifyStickyLayout(
   viewport: () => IViewportParameters,
   parentOffset: { top: number; left: number },
   placeholderOffset: { top: number; left: number },
-  placeholderWidth: number | null
+  placeholderWidth: number | null,
+  stickyBaseZIndex: number
 ): { sticky: boolean; cssProps: ICssStyleData } {
   let cssProps: ICssStyleData = {
     left: null,
@@ -287,7 +290,7 @@ function cssifyStickyLayout(
   const sticky = true;
   const { top, z, fixedHeight } = layout;
   const { scrollTop, topOffset } = viewport();
-  const zIndex = 1000 + z;
+  const zIndex = stickyBaseZIndex + z;
 
   if (layout.scrolling) {
     cssProps = {

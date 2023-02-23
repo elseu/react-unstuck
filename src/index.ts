@@ -1,19 +1,20 @@
 export {
   IStickyScrollContainerProps,
   StickyScrollContainer,
+  StickyConfigProvider,
   StickyContainer,
   IStickyProps,
   Sticky,
   useStickyLayoutListener,
   useStickyLayoutInfo,
-  useStickyOffsetCalculator
+  useStickyOffsetCalculator,
 } from "./components";
 export {
   notSticky,
   stickToTop,
   shiftToTop,
   stickToTopAndScrollDown,
-  stickToTopFullHeight
+  stickToTopFullHeight,
 } from "./behavior";
 export { IStickyBehavior } from "./calc";
 export { ISelectorFunction, ILabels } from "./selectors";

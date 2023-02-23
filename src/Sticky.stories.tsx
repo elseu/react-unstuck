@@ -20,6 +20,7 @@ import {
   stickToTopAndScrollDown,
   stickToTopFullHeight,
   Sticky,
+  StickyConfigProvider,
   StickyContainer,
   StickyScrollContainer,
   useStickyLayoutListener,
@@ -142,7 +143,7 @@ const StickyContent: FC<IStickyContentProps> = ({
     [logLayoutInfo]
   );
   return (
-    <>
+    <StickyConfigProvider baseZIndex={500}>
       <h1 style={stickyStyle1}>Nonsticky</h1>
       {/* tslint:disable-next-line:jsx-no-lambda */}
       <button onClick={() => scrollToElement(firstScrollTargetRef.current)}>
@@ -249,7 +250,7 @@ const StickyContent: FC<IStickyContentProps> = ({
         .map((i) => (
           <p key={`fifth-${i}`}>{`fifth-${i}`}</p>
         ))}
-    </>
+    </StickyConfigProvider>
   );
 };
 
