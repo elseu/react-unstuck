@@ -104,6 +104,9 @@ export interface IStickyProps extends HTMLAttributes<HTMLDivElement> {
 const wrapperStyle = { display: "block", position: "absolute", width: "100%" };
 const placeholderStyle = { display: "block", position: "relative" };
 
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
 export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
   ({
     behavior,
@@ -156,7 +159,7 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
     }
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    useLayoutEffect(() => {
+    useIsomorphicLayoutEffect(() => {
       // Set wrapper style in a layout effect for compatibility with SSR.
       if (ref.current) {
         const element = ref.current;
