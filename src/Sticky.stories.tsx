@@ -254,6 +254,52 @@ const StickyContent: FC<IStickyContentProps> = ({
   );
 };
 
+export const RemountLongContent: Story = () => {
+  const [key, setKey] = useState(Math.floor(Math.random() * 100));
+  const lipsum = Array(2000)
+    .fill(0)
+    .map(
+      () =>
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent lacinia ullamcorper porta. Sed nisl nisl, semper vel lectus ac, aliquet varius lacus. Pellentesque vitae eleifend velit. Cras non elit a felis egestas placerat at ac felis. Nulla gravida quam sed pulvinar malesuada. Curabitur dignissim accumsan nunc, id condimentum nulla accumsan in. In felis libero, tempus non lacus in, vehicula imperdiet arcu. Phasellus mattis feugiat dolor ac fermentum. Nulla porta, sem eu tristique facilisis, nibh ante aliquam lorem, non cursus nulla ipsum et libero. Phasellus iaculis, magna quis cursus condimentum, metus arcu hendrerit erat, ut porta tortor turpis id velit. Etiam interdum blandit mauris, et imperdiet sapien rhoncus et. Quisque pretium ex ac quam varius, eget auctor justo rhoncus. Etiam sit amet sem eros. Vestibulum aliquet scelerisque metus sit amet sagittis. Fusce quis porta massa, at blandit magna. Sed ac magna sit amet nunc egestas ornare ut nec felis."
+    );
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setKey(Math.floor(Math.random() * 100))}
+      >
+        set random key
+      </button>
+      <StickyContainer key={key}>
+        <div style={{ width: "500px" }}>
+          <div
+            style={{ width: "100%", height: 100, backgroundColor: "lightgray" }}
+          />
+          <Sticky behavior={stickToTop}>
+            <div
+              style={{
+                width: "100%",
+                height: 100,
+                backgroundColor: "red",
+                overflow: "hidden",
+              }}
+            >
+              <h1>I am sticky</h1>
+              {lipsum}
+            </div>
+          </Sticky>
+          <div
+            style={{ width: "100%", height: 100, backgroundColor: "black" }}
+          />
+          <div style={{ width: "100%", backgroundColor: "white" }}>
+            {lipsum}
+          </div>
+        </div>
+      </StickyContainer>
+    </>
+  );
+};
+
 export const InOverflowContainer: Story<IStickyContentProps> = ({
   behavior1,
   behavior2,

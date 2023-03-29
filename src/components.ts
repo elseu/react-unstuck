@@ -12,7 +12,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
 } from "react";
@@ -104,9 +103,6 @@ export interface IStickyProps extends HTMLAttributes<HTMLDivElement> {
 const wrapperStyle = { display: "block", position: "absolute", width: "100%" };
 const placeholderStyle = { display: "block", position: "relative" };
 
-const useIsomorphicLayoutEffect =
-  typeof window !== "undefined" ? useLayoutEffect : useEffect;
-
 export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
   ({
     behavior,
@@ -157,17 +153,6 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
       // We are not running in a scroll container. Just show the content.
       return createElement(Fragment, {}, children);
     }
-
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    useIsomorphicLayoutEffect(() => {
-      // Set wrapper style in a layout effect for compatibility with SSR.
-      if (ref.current) {
-        const element = ref.current;
-        Object.entries(wrapperStyle).forEach(([k, v]) => {
-          element.style.setProperty(k, v);
-        });
-      }
-    }, [ref]);
 
     return createElement(
       Fragment,
