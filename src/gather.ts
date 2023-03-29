@@ -5,11 +5,11 @@ import {
   PropsWithChildren,
   RefObject,
   useContext,
-  useEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
+import { useIsomorphicLayoutEffect } from "./util";
 
 interface IGatherEntry {
   element: HTMLElement;
@@ -142,7 +142,7 @@ export function useGather<T>(data: T): RefObject<any> {
     );
   }
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!ref.current) {
       return;
     }
