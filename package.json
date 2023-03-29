@@ -29,6 +29,7 @@
     "url": "https://github.com/elseu/react-unstuck/issues"
   },
   "scripts": {
+    "prepare": "husky install",
     "build": "rimraf dist; rollup -c",
     "dev": "start-storybook -p 6006",
     "test": "react-scripts test",
@@ -37,7 +38,8 @@
     "lint-fix": "tslint --project . --fix",
     "prepublishOnly": "npm run lint; npm run build",
     "deploy": "semantic-release",
-    "pretty-quick": "pretty-quick"
+    "pretty-quick": "pretty-quick",
+    "pretty-quick-staged": "pretty-quick --staged"
   },
   "main": "dist/index.js",
   "module": "dist/index.es.js",

@@ -12,6 +12,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
 } from "react";
@@ -36,6 +37,31 @@ import {
   useScrollEvent,
 } from "./scroll";
 import { ILabels, ISelectorFunction } from "./selectors";
+
+export type IStickyConfig = {
+  baseZIndex: number;
+};
+
+const defaultStickyConfig: IStickyConfig = {
+  baseZIndex: 1000,
+};
+
+const StickyConfigContext = createContext<IStickyConfig>(defaultStickyConfig);
+
+export const StickyConfigProvider: React.FC<
+  PropsWithChildren<Partial<IStickyConfig>>
+> = (props) => {
+  const { children, ...configProps } = props;
+  const config: IStickyConfig = {
+    ...defaultStickyConfig,
+    ...configProps,
+  };
+  return createElement(
+    StickyConfigContext.Provider,
+    { value: config },
+    children
+  );
+};
 
 export type IStickyScrollContainerProps =
   | {
@@ -69,6 +95,7 @@ export const StickyContainer: FC<PropsWithChildren<{}>> = ({ children }) => {
 
 export interface IStickyProps extends HTMLAttributes<HTMLDivElement> {
   defaultZIndex?: number;
+  stickyBaseZIndex?: number;
   behavior: IStickyBehavior;
   labels?: ILabels;
   respondsTo?: ISelectorFunction;
@@ -76,6 +103,9 @@ export interface IStickyProps extends HTMLAttributes<HTMLDivElement> {
 
 const wrapperStyle = { display: "block", position: "absolute", width: "100%" };
 const placeholderStyle = { display: "block", position: "relative" };
+
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
   ({
@@ -86,6 +116,7 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
     defaultZIndex,
     ...attributes
   }) => {
+    const { baseZIndex } = useContext(StickyConfigContext);
     const behaviorState = useRef<any>({});
     const placeholderRef = useRef<HTMLElement>();
     let ref: RefObject<HTMLElement>;
@@ -94,6 +125,7 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
       labels,
       selectorFunction: respondsTo,
       behaviorState: behaviorState.current,
+      baseZIndex,
       placeholderRef,
       update: (sticky, stickyCssProps) => {
         const wrapper = ref.current;
@@ -125,6 +157,18 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
       // We are not running in a scroll container. Just show the content.
       return createElement(Fragment, {}, children);
     }
+
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsomorphicLayoutEffect(() => {
+      // Set wrapper style in a layout effect for compatibility with SSR.
+      if (ref.current) {
+        const element = ref.current;
+        Object.entries(wrapperStyle).forEach(([k, v]) => {
+          element.style.setProperty(k, v);
+        });
+      }
+    }, [ref]);
+
     return createElement(
       Fragment,
       {},
@@ -132,7 +176,6 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
         "div",
         {
           ref,
-          style: typeof window !== "undefined" ? wrapperStyle : undefined,
           ...attributes,
         },
         children
