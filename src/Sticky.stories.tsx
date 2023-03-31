@@ -29,6 +29,7 @@ import {
   useStickyOffsetCalculator,
 } from "./index";
 import { ScrollContext, useScrollElement } from "./scroll";
+import { useIsomorphicLayoutEffect } from "util";
 
 // tslint:disable-next-line:no-object-literal-type-assertion
 export default {
@@ -601,7 +602,7 @@ const Portal: React.FC<IPortal> = ({ children }) => {
     setDefaultNode(portalDiv);
   }, [portalId]);
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (!defaultNode) return;
 
     document.body.appendChild(defaultNode);
