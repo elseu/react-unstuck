@@ -29,7 +29,7 @@ import {
   useStickyOffsetCalculator,
 } from "./index";
 import { ScrollContext, useScrollElement } from "./scroll";
-import { useIsomorphicLayoutEffect } from "util";
+import { useIsomorphicLayoutEffect } from "./util";
 
 // tslint:disable-next-line:no-object-literal-type-assertion
 export default {
