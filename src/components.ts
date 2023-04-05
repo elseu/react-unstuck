@@ -15,6 +15,7 @@ import {
   useMemo,
   useRef,
 } from "react";
+import { useIsomorphicLayoutEffect } from "./util";
 import {
   elementRootOffset,
   ICssStyleData,
@@ -114,6 +115,7 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
   }) => {
     const { baseZIndex } = useContext(StickyConfigContext);
     const behaviorState = useRef<any>({});
+    const didApplyBehaviorRef = useRef(false);
     const placeholderRef = useRef<HTMLElement>();
     let ref: RefObject<HTMLElement>;
     const handle: IStickyHandle = {
@@ -143,6 +145,7 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
         }
         placeholder.style.height = wrapper.offsetHeight + "px";
         wrapper.style.width = placeholder.offsetWidth + "px";
+        didApplyBehaviorRef.current = true;
       },
     };
 
@@ -153,6 +156,16 @@ export const Sticky: FC<PropsWithChildren<IStickyProps>> = memo(
       // We are not running in a scroll container. Just show the content.
       return createElement(Fragment, {}, children);
     }
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useIsomorphicLayoutEffect(() => {
+      // Set wrapper style in a layout effect for compatibility with SSR. But only if the true behavior hasn't been applied yet.
+      if (ref.current && !didApplyBehaviorRef.current) {
+        const element = ref.current;
+        Object.entries(wrapperStyle).forEach(([k, v]) => {
+          element.style.setProperty(k, v);
+        });
+      }
+    }, [didApplyBehaviorRef, ref]);
 
     return createElement(
       Fragment,
