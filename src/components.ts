@@ -95,7 +95,6 @@ export const StickyContainer: FC<PropsWithChildren<{}>> = ({ children }) => {
 
 export interface IStickyProps extends HTMLAttributes<HTMLDivElement> {
   defaultZIndex?: number;
-  stickyBaseZIndex?: number;
   behavior: IStickyBehavior;
   labels?: ILabels;
   respondsTo?: ISelectorFunction;
