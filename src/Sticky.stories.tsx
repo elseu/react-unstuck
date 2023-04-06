@@ -1,5 +1,6 @@
 import { action } from "@storybook/addon-actions";
 import { Meta, Story } from "@storybook/react";
+import { createPortal } from "react-dom";
 import React, {
   ComponentPropsWithoutRef,
   CSSProperties,
@@ -7,6 +8,7 @@ import React, {
   forwardRef,
   PropsWithChildren,
   useCallback,
+  useEffect,
   useRef,
   useState,
 } from "react";
@@ -27,6 +29,7 @@ import {
   useStickyOffsetCalculator,
 } from "./index";
 import { ScrollContext, useScrollElement } from "./scroll";
+import { useIsomorphicLayoutEffect } from "./util";
 
 // tslint:disable-next-line:no-object-literal-type-assertion
 export default {
@@ -526,4 +529,139 @@ PositionAbsoluteContainer.argTypes = {
     name: "Log layout info with listener",
     type: "boolean",
   },
+};
+
+function Drawer({ behavior1, onClose, children, right, left }: any) {
+  return (
+    <div
+      style={{
+        height: "100%",
+        background: "yellow",
+        position: "fixed",
+        top: 0,
+        left,
+        right,
+        width: 400,
+      }}
+    >
+      <StickyScrollContainer
+        element={<div style={{ height: "inherit", overflow: "scroll" }}></div>}
+      >
+        <Sticky behavior={behavior1}>
+          <h2>Title</h2>
+          <button onClick={onClose}>Close drawer</button>
+        </Sticky>
+        <div>
+          <h1>{children}</h1>
+          <ul>
+            <li>
+              Morbi in sem quis dui placerat ornare. Pellentesque odio nisi,
+              euismod in, pharetra a, ultricies in, diam. Sed arcu. Cras
+              consequat.
+            </li>
+            <li>
+              Praesent dapibus, neque id cursus faucibus, tortor neque egestas
+              augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam
+              dui mi, tincidunt quis, accumsan porttitor, facilisis luctus,
+              metus.
+            </li>
+            <li>
+              Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec
+              consectetuer ligula vulputate sem tristique cursus. Nam nulla
+              quam, gravida non, commodo a, sodales sit amet, nisi.
+            </li>
+            <li>
+              Pellentesque fermentum dolor. Aliquam quam lectus, facilisis
+              auctor, ultrices ut, elementum vulputate, nunc.
+            </li>
+          </ul>
+        </div>
+      </StickyScrollContainer>
+    </div>
+  );
+}
+
+interface IPortal {
+  /** Custom DOM node to render the portal in */
+  node?: HTMLDivElement;
+  /** Set a custom id for the portal node */
+  id?: string;
+  children?: React.ReactNode;
+}
+
+const Portal: React.FC<IPortal> = ({ children }) => {
+  const [defaultNode, setDefaultNode] = useState<HTMLElement>();
+  const portalId = "portal0";
+
+  useEffect(() => {
+    const portalDiv =
+      typeof window === "undefined" ? undefined : document.createElement("div");
+
+    if (portalDiv) portalDiv.id = portalId;
+
+    setDefaultNode(portalDiv);
+  }, [portalId]);
+
+  useIsomorphicLayoutEffect(() => {
+    if (!defaultNode) return;
+
+    document.body.appendChild(defaultNode);
+    return () => {
+      /** Query the element to remove, in case it was modified externally.  */
+      const portal = document.getElementById(portalId);
+      if (portal) {
+        document.body.removeChild(portal);
+      }
+    };
+  }, [defaultNode, portalId]);
+
+  if (!defaultNode) {
+    return null;
+  }
+
+  return createPortal(children, defaultNode);
+};
+
+function InPortal({ id, children }: any) {
+  const [hasMounted, setHasMounted] = React.useState(false);
+  React.useEffect(() => {
+    setHasMounted(true);
+  }, []);
+  if (!hasMounted) {
+    return null;
+  }
+  return createPortal(children, document.querySelector(`#${id}`)!);
+}
+export const MountingAndUnmountingDrawer: Story<IStickyContentProps> = ({
+  behavior1,
+}) => {
+  const [isOpen, setOpen] = useState(false);
+
+  return (
+    <div>
+      <button onClick={() => setOpen(true)}>Open drawer</button>
+      <div id="drawer"></div>
+      {isOpen && (
+        <InPortal id="drawer">
+          <Drawer left={0} onClose={() => setOpen(false)} behavior1={behavior1}>
+            WORKS
+          </Drawer>
+        </InPortal>
+      )}
+      {isOpen && (
+        <Portal>
+          <Drawer
+            right={0}
+            onClose={() => setOpen(false)}
+            behavior1={behavior1}
+            BROKEN
+          ></Drawer>
+        </Portal>
+      )}
+    </div>
+  );
+};
+
+MountingAndUnmountingDrawer.argTypes = {
+  behavior1: behaviorControl("Behavior 1"),
 };
