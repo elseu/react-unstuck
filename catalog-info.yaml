@@ -1,0 +1,14 @@
+apiVersion: backstage.io/v1beta1
+kind: Component
+metadata:
+  name: react-unstuck
+  description: "Sticky scrolling in React with custom behaviors"
+  annotations:
+    github.com/project-slug: elseu/react-unstuck
+    backstage.io/source-location: url:https://github.com/elseu/react-unstuck/
+  tags:
+    - typescript
+spec:
+  type: library
+  owner: team-content-view
+  lifecycle: production
