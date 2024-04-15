@@ -9,6 +9,6 @@ metadata:
   tags:
     - typescript
 spec:
-  type: unspecified
+  type: library
   owner: team-content-view
-  lifecycle: unspecified
+  lifecycle: production
